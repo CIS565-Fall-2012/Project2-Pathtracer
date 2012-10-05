@@ -49,7 +49,7 @@ int main(int argc, char** argv){
 
   // Set up camera stuff from loaded pathtracer settings
   iterations = 0;
-  renderCam = &renderScene->renderCam;
+  renderCam = &(renderScene->renderCam);
   width = renderCam->resolution[0];
   height = renderCam->resolution[1];
 
@@ -105,25 +105,31 @@ void runCuda(){
   // Map OpenGL buffer object for writing from CUDA on a single GPU
   // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not use this buffer
   
-  if(iterations<renderCam->iterations){
+  if((unsigned int)iterations < renderCam->iterations){
     uchar4 *dptr=NULL;
-    iterations++;
+    ++iterations;
     cudaGLMapBufferObject((void**)&dptr, pbo);
   
     //pack geom and material arrays
-    geom* geoms = new geom[renderScene->objects.size()];
-    material* materials = new material[renderScene->materials.size()];
+	unsigned int objectsSize = renderScene->objects.size(), materialsSize = renderScene->materials.size(), lightsSize = renderScene->lights.size();
+    geom* geoms = new geom[objectsSize];
+    material* materials = new material[materialsSize];
+	light* lights = new light[lightsSize];
+
     
-    for(int i=0; i<renderScene->objects.size(); i++){
+    for(unsigned int i=0; i< objectsSize; ++i){
       geoms[i] = renderScene->objects[i];
     }
-    for(int i=0; i<renderScene->materials.size(); i++){
+    for(unsigned int i=0; i< materialsSize; ++i){
       materials[i] = renderScene->materials[i];
+    }
+	for(unsigned int i=0; i< lightsSize; ++i){
+      lights[i] = renderScene->lights[i];
     }
     
   
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, materialsSize, geoms, objectsSize, lights, lightsSize);
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
@@ -133,8 +139,8 @@ void runCuda(){
       //output image file
       image outputImage(renderCam->resolution.x, renderCam->resolution.y);
 
-      for(int x=0; x<renderCam->resolution.x; x++){
-        for(int y=0; y<renderCam->resolution.y; y++){
+      for(int x=0; x<renderCam->resolution.x; ++x){
+        for(int y=0; y<renderCam->resolution.y; ++y){
           int index = x + (y * renderCam->resolution.x);
           outputImage.writePixelRGB(x,y,renderCam->image[index]);
         }
@@ -160,12 +166,12 @@ void runCuda(){
         exit(0);
       }
     }
-    if(targetFrame<renderCam->frames-1){
+    if(targetFrame < renderCam->frames - 1){
 
       //clear image buffer and move onto next frame
-      targetFrame++;
+      ++targetFrame;
       iterations = 0;
-      for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+      for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; ++i){
         renderCam->image[i] = glm::vec3(0,0,0);
       }
       cudaDeviceReset(); 
@@ -201,7 +207,7 @@ void runCuda(){
 	void display(){
 		runCuda();
 
-		string title = "565Raytracer | " + utilityCore::convertIntToString(iterations) + " Frames";
+		string title = "Aparajith GPU Raytracer | " + utilityCore::convertIntToString(iterations) + " Frames";
 		glutSetWindowTitle(title.c_str());
 
 		glBindBuffer( GL_PIXEL_UNPACK_BUFFER, pbo);
@@ -223,9 +229,32 @@ void runCuda(){
 		std::cout << key << std::endl;
 		switch (key) 
 		{
-		   case(27):
-			   exit(1);
-			   break;
+		case 'd':
+			//renderScene->renderCam.positions[0].x -= 1.0f;
+			renderCam[0].positions[0].x += 1.0f;
+			/*for(int i = 0; i <= renderCam->frames; ++i)
+			{
+				renderScene->renderCam.positions[0].x -= 1.0f;
+			}*/
+			break;
+		case 'a':
+			renderCam[0].positions[0].x -= 1.0f;
+			break;
+		case 'w':
+			renderCam[0].positions[0].z -= 1.0f;
+			break;
+		case 's':
+			renderCam[0].positions[0].z += 1.0f;
+			break;
+		case 'r':
+			renderCam[0].positions[0].y += 1.0f;
+			break;
+		case 'f':
+			renderCam[0].positions[0].y -= 1.0f;
+			break;
+		case(27):
+			exit(1);
+			break;
 		}
 	}
 
@@ -259,7 +288,7 @@ void runCuda(){
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 		glutInitWindowSize(width, height);
-		glutCreateWindow("565Raytracer");
+		glutCreateWindow("Aparajith GPU Raytracer");
 
 		// Init GLEW
 		glewInit();

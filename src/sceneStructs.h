@@ -18,6 +18,12 @@ struct ray {
 	glm::vec3 direction;
 };
 
+struct light
+{
+	glm::vec3 position;
+	glm::vec3 color;
+};
+
 struct geom {
 	enum GEOMTYPE type;
 	int materialid;

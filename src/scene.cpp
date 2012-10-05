@@ -26,6 +26,9 @@ scene::scene(string filename){
 				}else if(strcmp(tokens[0].c_str(), "CAMERA")==0){
 				    loadCamera();
 				    cout << " " << endl;
+				}else if(strcmp(tokens[0].c_str(), "LIGHT")==0){
+					loadLight(tokens[1]);
+					cout << " " << endl;
 				}
 			}
 		}
@@ -145,7 +148,7 @@ int scene::loadCamera(){
 		if(strcmp(tokens[0].c_str(), "RES")==0){
 			newCamera.resolution = glm::vec2(atoi(tokens[1].c_str()), atoi(tokens[2].c_str()));
 		}else if(strcmp(tokens[0].c_str(), "FOVY")==0){
-			fovy = atof(tokens[1].c_str());
+			fovy = (atof(tokens[1].c_str()) * PI / 180.0f);
 		}else if(strcmp(tokens[0].c_str(), "ITERATIONS")==0){
 			newCamera.iterations = atoi(tokens[1].c_str());
 		}else if(strcmp(tokens[0].c_str(), "FILE")==0){
@@ -177,9 +180,9 @@ int scene::loadCamera(){
 		if(strcmp(tokens[0].c_str(), "EYE")==0){
 			positions.push_back(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str())));
 		}else if(strcmp(tokens[0].c_str(), "VIEW")==0){
-			views.push_back(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str())));
+			views.push_back(glm::normalize(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()))));
 		}else if(strcmp(tokens[0].c_str(), "UP")==0){
-			ups.push_back(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str())));
+			ups.push_back(glm::normalize(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()))));
 		}
 	    }
 	    
@@ -199,9 +202,9 @@ int scene::loadCamera(){
 	}
 
 	//calculate fov based on resolution
-	float yscaled = tan(fovy*(PI/180));
-	float xscaled = (yscaled * newCamera.resolution.x)/newCamera.resolution.y;
-	float fovx = (atan(xscaled)*180)/PI;
+	float yscaled = (float)tan(fovy*(PI/180));
+	float xscaled = (float)(yscaled * newCamera.resolution.x)/newCamera.resolution.y;
+	float fovx = (float)(atan(xscaled)*180) / (float)PI;
 	newCamera.fov = glm::vec2(fovx, fovy);
 
 	renderCam = newCamera;
@@ -232,32 +235,63 @@ int scene::loadMaterial(string materialid){
 			getline(fp_in,line);
 			vector<string> tokens = utilityCore::tokenizeString(line);
 			if(strcmp(tokens[0].c_str(), "RGB")==0){
-				glm::vec3 color( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
+				glm::vec3 color( (float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str()) );
 				newMaterial.color = color;
 			}else if(strcmp(tokens[0].c_str(), "SPECEX")==0){
-				newMaterial.specularExponent = atof(tokens[1].c_str());				  
+				newMaterial.specularExponent = (float)atof(tokens[1].c_str());				  
 			}else if(strcmp(tokens[0].c_str(), "SPECRGB")==0){
-				glm::vec3 specColor( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
+				glm::vec3 specColor( (float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str()) );
 				newMaterial.specularColor = specColor;
 			}else if(strcmp(tokens[0].c_str(), "REFL")==0){
-				newMaterial.hasReflective = atof(tokens[1].c_str());
+				newMaterial.hasReflective = (float)atof(tokens[1].c_str());
 			}else if(strcmp(tokens[0].c_str(), "REFR")==0){
-				newMaterial.hasRefractive = atof(tokens[1].c_str());
+				newMaterial.hasRefractive = (float)atof(tokens[1].c_str());
 			}else if(strcmp(tokens[0].c_str(), "REFRIOR")==0){
-				newMaterial.indexOfRefraction = atof(tokens[1].c_str());					  
+				newMaterial.indexOfRefraction = (float)atof(tokens[1].c_str());					  
 			}else if(strcmp(tokens[0].c_str(), "SCATTER")==0){
-				newMaterial.hasScatter = atof(tokens[1].c_str());
+				newMaterial.hasScatter = (float)atof(tokens[1].c_str());
 			}else if(strcmp(tokens[0].c_str(), "ABSCOEFF")==0){
-				glm::vec3 abscoeff( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
+				glm::vec3 abscoeff( (float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str()) );
 				newMaterial.absorptionCoefficient = abscoeff;
 			}else if(strcmp(tokens[0].c_str(), "RSCTCOEFF")==0){
-				newMaterial.reducedScatterCoefficient = atof(tokens[1].c_str());					  
+				newMaterial.reducedScatterCoefficient = (float)atof(tokens[1].c_str());					  
 			}else if(strcmp(tokens[0].c_str(), "EMITTANCE")==0){
-				newMaterial.emittance = atof(tokens[1].c_str());					  
+				newMaterial.emittance = (float)atof(tokens[1].c_str());					  
 			
 			}
 		}
 		materials.push_back(newMaterial);
+		return 1;
+	}
+}
+
+int scene::loadLight(string lightid)
+{
+	int id = atoi(lightid.c_str());
+	if(id != lights.size())
+	{
+		cout << "Unexpected id of light\n";
+		return -1;
+	}
+	else
+	{
+		cout << "Loading Light " << id << "\n";
+		light lighto;
+		string line;
+		for(unsigned int i = 0; i < 2; ++i)
+		{
+			getline(fp_in,line);
+			vector<string> tokens = utilityCore::tokenizeString(line);
+			if(strcmp(tokens[0].c_str(), "RGB")==0)
+			{
+				lighto.color = glm::vec3((float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str()));
+			}
+			else if(strcmp(tokens[0].c_str(), "TRANS")==0)
+			{
+				lighto.position = glm::vec3((float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str()));
+			}
+		}
+		lights.push_back(lighto);
 		return 1;
 	}
 }
