@@ -16,6 +16,8 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	int pixelIndex;
+	float attenuation;
 };
 
 struct light

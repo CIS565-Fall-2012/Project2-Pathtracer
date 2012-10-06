@@ -5,7 +5,10 @@
 //       Peter Kutz and Yining Karl Li's GPU Pathtracer: http://gpupathtracer.blogspot.com/
 //       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
 
-#include <stdio.h>
+#include <thrust\remove.h>
+#include <thrust\count.h>
+#include <thrust\device_vector.h>
+#include <thrust\device_ptr.h>
 #include <cuda.h>
 #include <cmath>
 #include "sceneStructs.h"
@@ -77,6 +80,8 @@ __global__ void initialRaysGenerator(cameraData cam, ray *rays)
     if(x <= cam.resolution.x && y <= cam.resolution.y)
 	{
 		rays[index] = raycastFromCameraKernel(cam.resolution, 0.0f, x, y, cam.position, cam.view, cam.up, cam.fov);
+		rays[index].pixelIndex = (cam.resolution.x - x) + ((cam.resolution.y - y) * cam.resolution.x);
+		rays[index].attenuation = 1.0f;
     }
 	__syncthreads();
 }
@@ -164,18 +169,20 @@ __host__ __device__ int findNearestPrimitiveInRay(const staticGeom const *geoms,
 }
 
 __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth, glm::vec3* colors, 
-                            staticGeom* geoms, unsigned int numberOfGeoms, material *materials, unsigned int numberOfMaterials, light *lights, unsigned int numberOfLights){
+                            staticGeom* geoms, unsigned int numberOfGeoms, material *materials, unsigned int numberOfMaterials, light *lights, unsigned int numberOfLights)
+{
 
-  int x = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int y = (blockIdx.y * blockDim.y) + threadIdx.y;
-  int rayIndex = x + (y * cam.resolution.x);
-  int index = (cam.resolution.x - x) + ((cam.resolution.y - y) * cam.resolution.x);
+  //int x = (blockIdx.x * blockDim.x) + threadIdx.x;
+  //int y = (blockIdx.y * blockDim.y) + threadIdx.y;
+  //int rayIndex = x + (y * cam.resolution.x);
+  int rayIndex = blockIdx.x * blockDim.x + threadIdx.x;
+  int index = rays[rayIndex].pixelIndex;
 
-  if(((float)x <= cam.resolution.x && (float)y <= cam.resolution.y))
+  //if(((float)x <= cam.resolution.x && (float)y <= cam.resolution.y))
+  if(rayIndex <= cam.resolution.x * cam.resolution.y)
   {
-	//ray rt = raycastFromCameraKernel(cam.resolution, time, x, y, cam.position, cam.view, cam.up, cam.fov);
 	ray rt = rays[rayIndex];
-	if(rayDepth >= 10 || (rays[rayIndex].origin == glm::vec3(-10000, -10000, -10000)))
+	if(rayDepth >= 10 || rt.pixelIndex == -10000)
 	{
 		return;
 	}
@@ -213,45 +220,145 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 			{
 				//Lambert Shading
 				float KD = 0.8f;
-				colors[index] += KD * lights[i].color * materials[geoms[geomIndex].materialid].color * glm::dot(lightRay.direction, normal);
+				colors[index] += rt.attenuation * KD * lights[i].color * materials[geoms[geomIndex].materialid].color * glm::dot(lightRay.direction, normal);
+
+
 				//Phong Shading
 				float KS = 0.10f;
 				glm::vec3 reflectedRay = calculateReflectionDirection(normal, rt.direction);
 				glm::vec3 V = glm::normalize((cam.position - intersectionPoint));
-				colors[index] += (KS * materials[geoms[geomIndex].materialid].specularColor * lights[i].color * pow((float)glm::dot(reflectedRay, V),
+				colors[index] += (rt.attenuation * KS * materials[geoms[geomIndex].materialid].specularColor * lights[i].color * pow((float)glm::dot(reflectedRay, V),
 					materials[geoms[geomIndex].materialid].specularExponent));
+
+
 				//Reflection
 				if(materials[geoms[geomIndex].materialid].hasReflective == 1.0f)
 				{
+					float KR = 0.99f;
 					rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
 					rays[rayIndex].direction = reflectedRay;
+					rays[rayIndex].attenuation *= KR;
 				}
+
+
 				//Refraction
 				else if(materials[geoms[geomIndex].materialid].hasRefractive == 1.0f)
 				{
+					float KRef = 1.0f;
+					const float mediumRefractiveIndex = 1.0f;
+					glm::vec3 refractedRayDirection = calculateTransmissionDirection(normal, rt.direction, mediumRefractiveIndex,
+																			materials[geoms[geomIndex].materialid].indexOfRefraction);
 
+					//This check is needed only if space is filled with a material of high-refractive index
+					if(refractedRayDirection.x == -10000 && refractedRayDirection.y == -10000 && refractedRayDirection.z == -10000)
+					{
+						//TIR
+						rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
+						rays[rayIndex].direction = reflectedRay;
+						rays[rayIndex].attenuation *= KRef;
+					}
+					else
+					{
+						Fresnel fresnel = calculateFresnel(normal, rt.direction, mediumRefractiveIndex, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																				refractedRayDirection);
+						ray refractedRay;
+						refractedRay.direction = refractedRayDirection;
+						refractedRay.origin = intersectionPoint + refractedRayDirection * 0.01f;
+						glm::vec3 internalIntersectionPoint;
+						glm::vec3 internalIntersectionNormal;
+						int self = findNearestPrimitiveInRay(geoms, numberOfGeoms, refractedRay, internalIntersectionPoint, internalIntersectionNormal);
+						
+						//This will happen if eye is inside a primitive
+						if(self != geomIndex)
+						{
+							rays[rayIndex].origin = intersectionPoint + refractedRayDirection * 0.01f;
+							rays[rayIndex].direction = refractedRayDirection;
+						}
+
+						glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(internalIntersectionNormal, refractedRayDirection,
+																					materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
+						if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
+						{
+							//TIR, ray gets trapped inside object
+							rays[rayIndex].pixelIndex = -10000;
+						}
+						else
+						{
+							fresnel = calculateFresnel(internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																																mediumRefractiveIndex, refractedRayDirection2);
+							rays[rayIndex].origin = internalIntersectionPoint + refractedRayDirection2 * 0.01f;
+							rays[rayIndex].direction = refractedRayDirection2;
+						}
+					}
 				}
 				else
 				{
-					rays[rayIndex].origin = glm::vec3(-10000, -10000, -10000);
+					rays[rayIndex].pixelIndex = -10000;
 				}
 			}
-			//Coloring due to reflection
+			
+			//Coloring due to just reflection, not direct illumination
 			else if(materials[geoms[geomIndex].materialid].hasReflective == 1.0f)
 			{
+				float KR = 0.99f;
 				glm::vec3 reflectedRay = calculateReflectionDirection(normal, rt.direction);
 				rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
 				rays[rayIndex].direction = reflectedRay;
+				rays[rayIndex].attenuation *= KR;
 			}
-			//Coloring due to refraction
+
+
+			//Coloring due to just refraction, not direct illumination
 			else if(materials[geoms[geomIndex].materialid].hasRefractive == 1.0f)
 			{
+				float KRef = 1.0f;
+				glm::vec3 reflectedRay = calculateReflectionDirection(normal, rt.direction);
+				const float mediumRefractiveIndex = 1.0f;
+				glm::vec3 refractedRayDirection = calculateTransmissionDirection(normal, rt.direction, mediumRefractiveIndex,
+																		materials[geoms[geomIndex].materialid].indexOfRefraction);
 
+				//This check is needed only if space is filled with a material of high-refractive index
+				if(refractedRayDirection.x == -10000 && refractedRayDirection.y == -10000 && refractedRayDirection.z == -10000)
+				{
+					//TIR
+					rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
+					rays[rayIndex].direction = reflectedRay;
+					rays[rayIndex].attenuation *= KRef;
+				}
+				else
+				{
+					Fresnel fresnel = calculateFresnel(normal, rt.direction, mediumRefractiveIndex, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																			refractedRayDirection);
+					ray refractedRay;
+					refractedRay.direction = refractedRayDirection;
+					refractedRay.origin = intersectionPoint + refractedRayDirection * 0.01f;
+					glm::vec3 internalIntersectionPoint;
+					glm::vec3 internalIntersectionNormal;
+					int self = findNearestPrimitiveInRay(geoms, numberOfGeoms, refractedRay, internalIntersectionPoint, internalIntersectionNormal);
+
+					//This will happen if eye is inside a primitive
+					if(self != geomIndex)
+					{
+						rays[rayIndex].origin = intersectionPoint + refractedRayDirection * 0.01f;
+						rays[rayIndex].direction = refractedRayDirection;
+					}
+
+					glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(internalIntersectionNormal, refractedRayDirection,
+																				materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
+					if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
+					{
+						//TIR, ray gets trapped inside object
+						rays[rayIndex].pixelIndex = -10000;
+					}
+					else
+					{
+						fresnel = calculateFresnel(internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																															mediumRefractiveIndex, refractedRayDirection2);
+						rays[rayIndex].origin = intersectionPoint + refractedRayDirection2 * 0.01f;
+						rays[rayIndex].direction = refractedRayDirection2;
+					}
+				}
 			}
-			//Ambient Lighting
-			float KA = 0.1f;
-			glm::vec3 ambientLight(0.2f, 0.2f, 0.2f);
-			colors[index] += KA * materials[geoms[geomIndex].materialid].color * ambientLight;
 		}
 	}
 	//Background
@@ -329,10 +436,17 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
   initialRaysGenerator<<<fullBlocksPerGrid, threadsPerBlock>>>(cam, cudaRays);
 
   //kernel launches
+  unsigned int numberOfThreadsPerBlockTrace = 64;
+  unsigned int numberOfBlocksTrace = (unsigned int)ceil((float)numberOfRays / numberOfThreadsPerBlockTrace);
   for(int i = 0; i < traceDepth; ++i)
   {
-	  raytraceRay<<<fullBlocksPerGrid, threadsPerBlock>>>(cudaRays, (float)iterations, cam, i, cudaimage, cudageoms, (unsigned int)numberOfGeoms, cudaMaterials,
+	  raytraceRay<<<numberOfBlocksTrace, numberOfThreadsPerBlockTrace>>>(cudaRays, (float)iterations, cam, i, cudaimage, cudageoms, (unsigned int)numberOfGeoms, cudaMaterials,
 		  (unsigned int)numberOfMaterials, cudaLights, (unsigned int)numberOfLights);
+	  thrust::device_ptr<ray> in_dev_ptr(cudaRays);
+	  thrust::device_ptr<ray> out_dev_ptr;
+	  out_dev_ptr = thrust::remove_if(in_dev_ptr, in_dev_ptr + numberOfRays, is_garbage_ray());
+	  numberOfRays = out_dev_ptr.get() - in_dev_ptr.get();
+	  numberOfBlocksTrace = (unsigned int)ceil((float)numberOfRays / numberOfThreadsPerBlockTrace);
   }
 
   sendImageToPBO<<<fullBlocksPerGrid, threadsPerBlock>>>(PBOpos, renderCam->resolution, cudaimage);
