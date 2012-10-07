@@ -73,4 +73,12 @@ struct material{
 	float emittance;
 };
 
+struct bounce{
+	glm::vec3 position;
+	glm::vec3 incomingVector;
+	glm::vec3 normal;
+	glm::vec3 color;
+	int pixel;
+	int count;
+};
 #endif //CUDASTRUCTS_H

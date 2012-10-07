@@ -161,8 +161,8 @@ cube
 material 1
 frame 0
 TRANS       -5 5 0
-ROTAT       0 0 0
-SCALE       .01 10 10
+ROTAT       0 0 90
+SCALE       10 .01 10
 frame 1
 TRANS       -5 5 0
 ROTAT       0 0 0
@@ -173,8 +173,8 @@ cube
 material 2
 frame 0
 TRANS       5 5 0
-ROTAT       0 0 0
-SCALE       .01 10 10
+ROTAT       0 0 90
+SCALE       10 .01 10
 frame 1
 TRANS       5 5 0
 ROTAT       0 0 0
