@@ -92,7 +92,7 @@ __host__ __device__  float boxIntersectionTest(const staticGeom &box, const ray 
 	txmin = (bounds[sign[0]].x - rt.origin.x) * invDirection.x;
 	txmax = (bounds[1 - sign[0]].x - rt.origin.x) * invDirection.x;
 
-	if(txmin < 0 && txmax < 0)
+	if(txmin <= 0 && txmax <= 0)
 	{
 		return -1.0f;
 	}
@@ -112,7 +112,7 @@ __host__ __device__  float boxIntersectionTest(const staticGeom &box, const ray 
 	tymin = (bounds[sign[1]].y - rt.origin.y) * invDirection.y;
 	tymax = (bounds[1 - sign[1]].y - rt.origin.y) * invDirection.y;
 
-	if(tymin < 0 && tymax < 0)
+	if(tymin <= 0 && tymax <= 0)
 	{
 		return -1.0f;
 	}
@@ -135,7 +135,7 @@ __host__ __device__  float boxIntersectionTest(const staticGeom &box, const ray 
 	tzmin = (bounds[sign[2]].z - rt.origin.z) * invDirection.z;
 	tzmax = (bounds[1 - sign[2]].z - rt.origin.z) * invDirection.z;
 
-	if(tzmin < 0 && tzmax < 0)
+	if(tzmin <= 0 && tzmax <= 0)
 	{
 		return -1.0f;
 	}
@@ -154,37 +154,6 @@ __host__ __device__  float boxIntersectionTest(const staticGeom &box, const ray 
 		tmax = tzmax;
 		axisMax = 2;
 	}
-
-	/*
-	intersectionPoint = multiplyMV(box.transform, glm::vec4(getPointOnRay(rt, tmin), 1.0));
-	if(axisMin == 0)
-	{
-		normal = glm::vec3(-1, 0, 0);
-		if(sign[0])
-		{
-			normal.x = 1.0f;
-		}
-		normal = glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0f)));
-	}
-	else if(axisMin == 1)
-	{
-		normal = glm::vec3(0, -1, 0);
-		if(sign[1])
-		{
-			normal.y = 1.0f;
-		}
-		normal = glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0f)));
-	}
-	else
-	{
-		normal = glm::vec3(0, 0, -1);
-		if(sign[2])
-		{
-			normal.z = 1.0f;
-		}
-		normal = glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0f)));
-	}
-	*/
 
 	if(!epsilonCheck(tmin, -1e6f))
 	{

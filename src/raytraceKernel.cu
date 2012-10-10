@@ -216,7 +216,8 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 			int obstructionIndex = -1;
 			glm::vec3 obstructionIntersectionPoint, obstructionNormal;
 			obstructionIndex = findNearestPrimitiveInRay(geoms, numberOfGeoms, lightRay, obstructionIntersectionPoint, obstructionNormal);
-			if(obstructionIndex == -1 || (glm::distance(intersectionPoint, obstructionIntersectionPoint) > glm::distance(intersectionPoint, lights[i].position)))
+			if(obstructionIndex == -1 || (glm::distance(intersectionPoint, obstructionIntersectionPoint) > glm::distance(intersectionPoint, lights[i].position))
+				|| materials[geoms[obstructionIndex].materialid].hasRefractive == 1.0f)
 			{
 				//Lambert Shading
 				float KD = 0.8f;
@@ -252,7 +253,7 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 					//This check is needed only if space is filled with a material of high-refractive index
 					if(refractedRayDirection.x == -10000 && refractedRayDirection.y == -10000 && refractedRayDirection.z == -10000)
 					{
-						//TIR
+						//Reflection, angle > critical angle
 						rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
 						rays[rayIndex].direction = reflectedRay;
 						rays[rayIndex].attenuation *= KRef;
@@ -274,20 +275,24 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 							rays[rayIndex].origin = intersectionPoint + refractedRayDirection * 0.01f;
 							rays[rayIndex].direction = refractedRayDirection;
 						}
-
-						glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(internalIntersectionNormal, refractedRayDirection,
-																					materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
-						if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
-						{
-							//TIR, ray gets trapped inside object
-							rays[rayIndex].pixelIndex = -10000;
-						}
 						else
 						{
-							fresnel = calculateFresnel(internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
-																																mediumRefractiveIndex, refractedRayDirection2);
-							rays[rayIndex].origin = internalIntersectionPoint + refractedRayDirection2 * 0.01f;
-							rays[rayIndex].direction = refractedRayDirection2;
+							glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(-internalIntersectionNormal, refractedRayDirection,
+																						materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
+							if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
+							{
+								//TIR, ray gets trapped inside object
+								//rays[rayIndex].pixelIndex = -10000;
+								rays[rayIndex].direction = calculateReflectionDirection(-internalIntersectionNormal, refractedRayDirection);
+								rays[rayIndex].origin = internalIntersectionPoint + rays[rayIndex].direction * 0.01f;
+							}
+							else
+							{
+								fresnel = calculateFresnel(-internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																																	mediumRefractiveIndex, refractedRayDirection2);
+								rays[rayIndex].origin = internalIntersectionPoint + refractedRayDirection2 * 0.01f;
+								rays[rayIndex].direction = refractedRayDirection2;
+							}
 						}
 					}
 				}
@@ -320,7 +325,7 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 				//This check is needed only if space is filled with a material of high-refractive index
 				if(refractedRayDirection.x == -10000 && refractedRayDirection.y == -10000 && refractedRayDirection.z == -10000)
 				{
-					//TIR
+					//Reflection, angle > critical angle
 					rays[rayIndex].origin = intersectionPoint + reflectedRay * 0.01f;
 					rays[rayIndex].direction = reflectedRay;
 					rays[rayIndex].attenuation *= KRef;
@@ -335,27 +340,31 @@ __global__ void raytraceRay(ray *rays, float time, cameraData cam, int rayDepth,
 					glm::vec3 internalIntersectionPoint;
 					glm::vec3 internalIntersectionNormal;
 					int self = findNearestPrimitiveInRay(geoms, numberOfGeoms, refractedRay, internalIntersectionPoint, internalIntersectionNormal);
-
+						
 					//This will happen if eye is inside a primitive
 					if(self != geomIndex)
 					{
 						rays[rayIndex].origin = intersectionPoint + refractedRayDirection * 0.01f;
 						rays[rayIndex].direction = refractedRayDirection;
 					}
-
-					glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(internalIntersectionNormal, refractedRayDirection,
-																				materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
-					if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
-					{
-						//TIR, ray gets trapped inside object
-						rays[rayIndex].pixelIndex = -10000;
-					}
 					else
 					{
-						fresnel = calculateFresnel(internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
-																															mediumRefractiveIndex, refractedRayDirection2);
-						rays[rayIndex].origin = intersectionPoint + refractedRayDirection2 * 0.01f;
-						rays[rayIndex].direction = refractedRayDirection2;
+						glm::vec3 refractedRayDirection2 = calculateTransmissionDirection(-internalIntersectionNormal, refractedRayDirection,
+																					materials[geoms[geomIndex].materialid].indexOfRefraction, mediumRefractiveIndex);
+						if(refractedRayDirection2.x == -10000 && refractedRayDirection2.y == -10000 && refractedRayDirection2.z == -10000)
+						{
+							//TIR, ray gets trapped inside object
+							//rays[rayIndex].pixelIndex = -10000;
+							rays[rayIndex].direction = calculateReflectionDirection(-internalIntersectionNormal, refractedRayDirection);
+							rays[rayIndex].origin = internalIntersectionPoint + rays[rayIndex].direction * 0.01f;
+						}
+						else
+						{
+							fresnel = calculateFresnel(-internalIntersectionNormal, refractedRayDirection, materials[geoms[geomIndex].materialid].indexOfRefraction,
+																																mediumRefractiveIndex, refractedRayDirection2);
+							rays[rayIndex].origin = internalIntersectionPoint + refractedRayDirection2 * 0.01f;
+							rays[rayIndex].direction = refractedRayDirection2;
+						}
 					}
 				}
 			}

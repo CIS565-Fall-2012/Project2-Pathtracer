@@ -1,4 +1,4 @@
-﻿Build started 10/6/2012 6:48:50 PM.
+﻿Build started 10/9/2012 9:02:31 PM.
      1>Project "C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\565Raytracer.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,15 +8,15 @@
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
        CudaBuild:
          Compiling CUDA source file ..\..\src\raytraceKernel.cu...
-         cmd.exe /C "C:\Users\Aparajith Sairam\AppData\Local\Temp\88e20f81cdfb42919940ebdaf9eda271.cmd"
+         cmd.exe /C "C:\Users\Aparajith Sairam\AppData\Local\Temp\890757bb5908462392a33f687a630240.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include"  -G  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd  " -o "C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\src\raytraceKernel.cu"
          
          C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include"  -G  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd  " -o "C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Aparajith Sairam\Documents\MS CGGT\GPU Fall 2012\Project2-Pathtracer\src\raytraceKernel.cu" 
          raytraceKernel.cu
      1>C:/Users/Aparajith Sairam/Documents/MS CGGT/GPU Fall 2012/Project2-Pathtracer/src/raytraceKernel.cu(133): warning : type qualifier specified more than once
          
-         tmpxft_00001a58_00000000-0_raytraceKernel.cudafe1.gpu
-         tmpxft_00001a58_00000000-5_raytraceKernel.cudafe2.gpu
+         tmpxft_0000115c_00000000-0_raytraceKernel.cudafe1.gpu
+         tmpxft_0000115c_00000000-5_raytraceKernel.cudafe2.gpu
          raytraceKernel.cu
      1>c:\users\aparajith sairam\documents\ms cggt\gpu fall 2012\project2-pathtracer\src\glm\core\_swizzle.hpp(194): warning : missing return statement at end of non-void function "glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::operator=(const glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::Stub &)"
          
@@ -117,9 +117,9 @@
          ./c:\program files\nvidia gpu computing toolkit\cuda\v4.2\include\thrust\detail\backend\cuda\detail\fast_scan.inl(118): Warning: Cannot tell what pointer points to, assuming global memory space
          ./c:\program files\nvidia gpu computing toolkit\cuda\v4.2\include\thrust\detail\backend\cuda\detail\fast_scan.inl(146): Warning: Cannot tell what pointer points to, assuming global memory space
          ./c:\program files\nvidia gpu computing toolkit\cuda\v4.2\include\thrust\detail\backend\cuda\detail\fast_scan.inl(159): Warning: Cannot tell what pointer points to, assuming global memory space
-     1>ptxas C : /Users/APARAJ~1/AppData/Local/Temp/tmpxft_00001a58_00000000-1_raytraceKernel.ptx, line 4083; warning : Double is not supported. Demoting to float
-         tmpxft_00001a58_00000000-0_raytraceKernel.cudafe1.cpp
-         tmpxft_00001a58_00000000-11_raytraceKernel.ii
+     1>ptxas C : /Users/APARAJ~1/AppData/Local/Temp/tmpxft_0000115c_00000000-1_raytraceKernel.ptx, line 4106; warning : Double is not supported. Demoting to float
+         tmpxft_0000115c_00000000-0_raytraceKernel.cudafe1.cpp
+         tmpxft_0000115c_00000000-11_raytraceKernel.ii
        ClCompile:
          All outputs are up-to-date.
          All outputs are up-to-date.
@@ -148,4 +148,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:24.19
+Time Elapsed 00:00:24.85
