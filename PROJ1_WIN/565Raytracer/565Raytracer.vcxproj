@@ -36,6 +36,18 @@
   <ItemGroup>
     <CudaCompile Include="..\..\src\raytraceKernel.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" />
+    <None Include="..\..\scenes\sampleScene.txt" />
+    <None Include="..\..\scenes\sampleScene2.txt" />
+    <None Include="..\..\scenes\sampleScene3.txt" />
+    <None Include="..\..\scenes\sampleScene4.txt" />
+    <None Include="..\..\scenes\sampleScene5.txt" />
+    <None Include="..\..\scenes\sampleScene6.txt" />
+    <None Include="..\..\scenes\Scene.txt" />
+    <None Include="Interactions_Back_Up.txt" />
+    <None Include="Junk.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF21CA49-522E-4E86-B508-EE515B248FC4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -117,6 +129,8 @@
     <CudaCompile>
       <CompileOut>$(ProjectDir)$(Platform)/$(Configuration)/%(Filename)%(Extension).obj</CompileOut>
       <Include>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include;C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc;../shared/glew/includes;../shared/freeglut/includes</Include>
+      <GPUDebugInfo>false</GPUDebugInfo>
+      <HostDebugInfo>false</HostDebugInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -16,6 +16,11 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	bool keep;
+	int pixelIndex;
+	bool isInside;
+	int currentObjIndex;
+	int currentMatIndex;
 };
 
 struct geom {
@@ -71,6 +76,14 @@ struct material{
 	glm::vec3 absorptionCoefficient;
 	float reducedScatterCoefficient;
 	float emittance;
+};
+
+struct is_alive
+{
+	__host__ __device__	bool operator()(ray r)
+	{
+		return r.keep == 0;
+	}
 };
 
 #endif //CUDASTRUCTS_H

@@ -28,23 +28,27 @@ int main(int argc, char** argv){
   targetFrame = 0;
   singleFrameMode = false;
 
+  /////////////////!!!!!SET THE INITIAL FOCAL PLANE HERE!!!!!/////////////////
+  //FocusPoint = glm::vec3(0.0, 0.0, 0.0);
+  FocalDistance = 10.0f;
+
   // Load scene file
   for(int i=1; i<argc; i++){
-    string header; string data;
-    istringstream liness(argv[i]);
-    getline(liness, header, '='); getline(liness, data, '=');
-    if(strcmp(header.c_str(), "scene")==0){
-      renderScene = new scene(data);
-      loadedScene = true;
-    }else if(strcmp(header.c_str(), "frame")==0){
-      targetFrame = atoi(data.c_str());
-      singleFrameMode = true;
-    }
+	string header; string data;
+	istringstream liness(argv[i]);
+	getline(liness, header, '='); getline(liness, data, '=');
+	if(strcmp(header.c_str(), "scene")==0){
+	  renderScene = new scene(data);
+	  loadedScene = true;
+	}else if(strcmp(header.c_str(), "frame")==0){
+	  targetFrame = atoi(data.c_str());
+	  singleFrameMode = true;
+	}
   }
 
   if(!loadedScene){
-    cout << "Error: scene file needed!" << endl;
-    return 0;
+	cout << "Error: scene file needed!" << endl;
+	return 0;
   }
 
   // Set up camera stuff from loaded pathtracer settings
@@ -52,10 +56,13 @@ int main(int argc, char** argv){
   renderCam = &renderScene->renderCam;
   width = renderCam->resolution[0];
   height = renderCam->resolution[1];
+   for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+		renderCam->image[i] = glm::vec3(1.0,1.0,1.0);
+	  }
 
   if(targetFrame>=renderCam->frames){
-    cout << "Warning: Specified target frame is out of range, defaulting to frame 0." << endl;
-    targetFrame = 0;
+	cout << "Warning: Specified target frame is out of range, defaulting to frame 0." << endl;
+	targetFrame = 0;
   }
 
   // Launch CUDA/GL
@@ -104,73 +111,81 @@ void runCuda(){
 
   // Map OpenGL buffer object for writing from CUDA on a single GPU
   // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not use this buffer
-  
+  if(changed == true)
+  {
+	  iterations = 0;
+	  changed = false;
+  }
   if(iterations<renderCam->iterations){
-    uchar4 *dptr=NULL;
-    iterations++;
-    cudaGLMapBufferObject((void**)&dptr, pbo);
+	uchar4 *dptr=NULL;
+	
+	iterations++;
+	cudaGLMapBufferObject((void**)&dptr, pbo);
   
-    //pack geom and material arrays
-    geom* geoms = new geom[renderScene->objects.size()];
-    material* materials = new material[renderScene->materials.size()];
-    
-    for(int i=0; i<renderScene->objects.size(); i++){
-      geoms[i] = renderScene->objects[i];
-    }
-    for(int i=0; i<renderScene->materials.size(); i++){
-      materials[i] = renderScene->materials[i];
-    }
-    
-  
-    // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
-    
-    // unmap buffer object
-    cudaGLUnmapBufferObject(pbo);
+	//pack geom and material arrays
+	geom* geoms = new geom[renderScene->objects.size()];
+	material* materials = new material[renderScene->materials.size()];
+	
+	for(int i=0; i<renderScene->objects.size(); i++){
+	  geoms[i] = renderScene->objects[i];
+	}
+	for(int i=0; i<renderScene->materials.size(); i++){
+	  materials[i] = renderScene->materials[i];
+	}
+	
+	
+	// execute the kernel
+	cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size(), changed, FocalDistance);
+	
+	if(iterations % 100 == 0)
+		WriteToFile();
+
+	// unmap buffer object
+	cudaGLUnmapBufferObject(pbo);
   }else{
 
-    if(!finishedRender){
-      //output image file
-      image outputImage(renderCam->resolution.x, renderCam->resolution.y);
+	if(!finishedRender){
+	  //output image file
+	  image outputImage(renderCam->resolution.x, renderCam->resolution.y);
 
-      for(int x=0; x<renderCam->resolution.x; x++){
-        for(int y=0; y<renderCam->resolution.y; y++){
-          int index = x + (y * renderCam->resolution.x);
-          outputImage.writePixelRGB(x,y,renderCam->image[index]);
-        }
-      }
-      
-      gammaSettings gamma;
-      gamma.applyGamma = true;
-      gamma.gamma = 1.0/2.2;
-      gamma.divisor = renderCam->iterations;
-      outputImage.setGammaSettings(gamma);
-      string filename = renderCam->imageName;
-      string s;
-      stringstream out;
-      out << targetFrame;
-      s = out.str();
-      utilityCore::replaceString(filename, ".bmp", "."+s+".bmp");
-      utilityCore::replaceString(filename, ".png", "."+s+".png");
-      outputImage.saveImageRGB(filename);
-      cout << "Saved frame " << s << " to " << filename << endl;
-      finishedRender = true;
-      if(singleFrameMode==true){
-        cudaDeviceReset(); 
-        exit(0);
-      }
-    }
-    if(targetFrame<renderCam->frames-1){
+	  for(int x=0; x<renderCam->resolution.x; x++){
+		for(int y=0; y<renderCam->resolution.y; y++){
+		  int index = x + (y * renderCam->resolution.x);
+		  outputImage.writePixelRGB(x,y,renderCam->image[index]);
+		}
+	  }
+	  
+	  gammaSettings gamma;
+	  gamma.applyGamma = true;
+	  gamma.gamma = 1.0/2.2;
+	  gamma.divisor = renderCam->iterations;
+	  outputImage.setGammaSettings(gamma);
+	  string filename = renderCam->imageName;
+	  string s;
+	  stringstream out;
+	  out << targetFrame;
+	  s = out.str();
+	  utilityCore::replaceString(filename, ".bmp", "."+s+".bmp");
+	  utilityCore::replaceString(filename, ".png", "."+s+".png");
+	  outputImage.saveImageRGB(filename);
+	  cout << "Saved frame " << s << " to " << filename << endl;
+	  finishedRender = true;
+	  if(singleFrameMode==true){
+		cudaDeviceReset(); 
+		exit(0);
+	  }
+	}
+	if(targetFrame<renderCam->frames-1){
 
-      //clear image buffer and move onto next frame
-      targetFrame++;
-      iterations = 0;
-      for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
-        renderCam->image[i] = glm::vec3(0,0,0);
-      }
-      cudaDeviceReset(); 
-      finishedRender = false;
-    }
+	  //clear image buffer and move onto next frame
+	  targetFrame++;
+	  iterations = 0;
+	  for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+		renderCam->image[i] = glm::vec3(0,0,0);
+	  }
+	  cudaDeviceReset(); 
+	  finishedRender = false;
+	}
   }
   
 }
@@ -221,11 +236,112 @@ void runCuda(){
 	void keyboard(unsigned char key, int x, int y)
 	{
 		std::cout << key << std::endl;
+		float radAngle;
+		glm::mat3 RotateX;
 		switch (key) 
 		{
 		   case(27):
 			   exit(1);
 			   break;
+
+		   case 'w':
+			   renderCam->positions[0].y += 0.5f;
+			   renderCam->positions[1].y += 0.5f;
+			   changed = true;
+			   break;
+
+			case 's':
+			   renderCam->positions[0].y -= 0.5f;
+			   renderCam->positions[1].y -= 0.5f;
+			   changed = true;
+			   break;
+
+			case 'd':
+			   renderCam->positions[0].x += 0.5f;
+			   renderCam->positions[1].x += 0.5f;
+			   changed = true;
+			   break;
+
+			case 'a':
+			   renderCam->positions[0].x -= 0.5f;
+			   renderCam->positions[1].x -= 0.5f;
+			   changed = true;
+			   break;
+
+			case 'q':
+			   renderCam->positions[0].z += 0.5f;
+			   renderCam->positions[1].z += 0.5f;
+			   changed = true;
+			   break;
+
+			case 'e':
+			   renderCam->positions[0].z -= 0.5f;
+			   renderCam->positions[1].z -= 0.5f;
+			   changed = true;
+			   break;
+
+			case 'x':
+				radAngle = glm::radians(0.2);
+				RotateX = glm::mat3(1.0, 0.0, 0.0, 0.0, cos(radAngle),  -sin(radAngle), 0.0, sin(radAngle), cos(radAngle));
+				renderCam->views[0] = RotateX * renderCam->views[0];
+				renderCam->views[1] = RotateX * renderCam->views[1];
+				changed = true;
+				break;
+
+			case 'X':
+				radAngle = glm::radians(-0.2);
+				RotateX = glm::mat3(1.0, 0.0, 0.0, 0.0, cos(radAngle),  -sin(radAngle), 0.0, sin(radAngle), cos(radAngle));
+				renderCam->views[0] = RotateX * renderCam->views[0];
+				renderCam->views[1] = RotateX * renderCam->views[1];
+				changed = true;
+				break;
+
+			case 'y':
+				radAngle = glm::radians(0.2);
+				RotateX = glm::mat3(cos(radAngle), 0.0, sin(radAngle), 0.0, 1.0, 0.0, -sin(radAngle), 0.0, cos(radAngle));
+				renderCam->views[0] = RotateX * renderCam->views[0];
+				renderCam->views[1] = RotateX * renderCam->views[1];
+				changed = true;
+				break;
+
+			case 'Y':
+				radAngle = glm::radians(-0.2);
+				RotateX = glm::mat3(cos(radAngle), 0.0, sin(radAngle), 0.0, 1.0, 0.0, -sin(radAngle), 0.0, cos(radAngle));
+				renderCam->views[0] = RotateX * renderCam->views[0];
+				renderCam->views[1] = RotateX * renderCam->views[1];
+				changed = true;
+				break;
+
+			///*case 'y':
+			//	radAngle = glm::radians(0.2);
+			//	RotateX = glm::mat3(cos(radAngle), -sin(radAngle), 0.0, sin(radAngle), cos(radAngle), 0.0, 0.0, 0.0, 1.0);
+			//	renderCam->views[0] = RotateX * renderCam->views[0];
+			//	renderCam->views[1] = RotateX * renderCam->views[1];
+			//	break;
+
+			//case 'Y':
+			//	radAngle = glm::radians(-90.0);
+			//	RotateX = glm::mat3(cos(radAngle), -sin(radAngle), 0.0, sin(radAngle), cos(radAngle), 0.0, 0.0, 0.0, 1.0);
+			//	renderCam->views[0] = RotateX * renderCam->views[0];
+			//	renderCam->views[1] = RotateX * renderCam->views[1];
+			//	renderCam->ups[0] = RotateX * renderCam->views[0];
+			//	renderCam->ups[1] = RotateX * renderCam->views[1];
+			//	break;*/
+			
+			case 'i':		//Write image to file
+			case 'I':
+				WriteToFile();
+				break;
+
+			case 'j':
+				//FocusPoint += glm::vec3(0.0f, 0.0f, 0.5f);
+				FocalDistance += 0.5;
+				break;
+
+			case 'k':
+				//FocusPoint += glm::vec3(0.0f, 0.0f, -0.5f);
+				FocalDistance -= 0.5;
+				break;
 		}
 	}
 
@@ -278,18 +394,18 @@ void runCuda(){
 
 void initPBO(GLuint* pbo){
   if (pbo) {
-    // set up vertex data parameter
-    int num_texels = width*height;
-    int num_values = num_texels * 4;
-    int size_tex_data = sizeof(GLubyte) * num_values;
-    
-    // Generate a buffer ID called a PBO (Pixel Buffer Object)
-    glGenBuffers(1,pbo);
-    // Make this the current UNPACK buffer (OpenGL is state-based)
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, *pbo);
-    // Allocate data for the buffer. 4-channel 8-bit image
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, size_tex_data, NULL, GL_DYNAMIC_COPY);
-    cudaGLRegisterBufferObject( *pbo );
+	// set up vertex data parameter
+	int num_texels = width*height;
+	int num_values = num_texels * 4;
+	int size_tex_data = sizeof(GLubyte) * num_values;
+	
+	// Generate a buffer ID called a PBO (Pixel Buffer Object)
+	glGenBuffers(1,pbo);
+	// Make this the current UNPACK buffer (OpenGL is state-based)
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, *pbo);
+	// Allocate data for the buffer. 4-channel 8-bit image
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, size_tex_data, NULL, GL_DYNAMIC_COPY);
+	cudaGLRegisterBufferObject( *pbo );
   }
 }
 
@@ -306,62 +422,89 @@ void initCuda(){
 }
 
 void initTextures(){
-    glGenTextures(1,&displayImage);
-    glBindTexture(GL_TEXTURE_2D, displayImage);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
-        GL_UNSIGNED_BYTE, NULL);
+	glGenTextures(1,&displayImage);
+	glBindTexture(GL_TEXTURE_2D, displayImage);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA,
+		GL_UNSIGNED_BYTE, NULL);
 }
 
 void initVAO(void){
-    GLfloat vertices[] =
-    { 
-        -1.0f, -1.0f, 
-         1.0f, -1.0f, 
-         1.0f,  1.0f, 
-        -1.0f,  1.0f, 
-    };
+	GLfloat vertices[] =
+	{ 
+		-1.0f, -1.0f, 
+		 1.0f, -1.0f, 
+		 1.0f,  1.0f, 
+		-1.0f,  1.0f, 
+	};
 
-    GLfloat texcoords[] = 
-    { 
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f
-    };
+	GLfloat texcoords[] = 
+	{ 
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f
+	};
 
-    GLushort indices[] = { 0, 1, 3, 3, 1, 2 };
+	GLushort indices[] = { 0, 1, 3, 3, 1, 2 };
 
-    GLuint vertexBufferObjID[3];
-    glGenBuffers(3, vertexBufferObjID);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)positionLocation, 2, GL_FLOAT, GL_FALSE, 0, 0); 
-    glEnableVertexAttribArray(positionLocation);
+	GLuint vertexBufferObjID[3];
+	glGenBuffers(3, vertexBufferObjID);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer((GLuint)positionLocation, 2, GL_FLOAT, GL_FALSE, 0, 0); 
+	glEnableVertexAttribArray(positionLocation);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)texcoordsLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(texcoordsLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+	glVertexAttribPointer((GLuint)texcoordsLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(texcoordsLocation);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexBufferObjID[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexBufferObjID[2]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 GLuint initShader(const char *vertexShaderPath, const char *fragmentShaderPath){
-    GLuint program = glslUtility::createProgram(vertexShaderPath, fragmentShaderPath, attributeLocations, 2);
-    GLint location;
+	GLuint program = glslUtility::createProgram(vertexShaderPath, fragmentShaderPath, attributeLocations, 2);
+	GLint location;
 
-    glUseProgram(program);
-    
-    if ((location = glGetUniformLocation(program, "u_image")) != -1)
-    {
-        glUniform1i(location, 0);
-    }
+	glUseProgram(program);
+	
+	if ((location = glGetUniformLocation(program, "u_image")) != -1)
+	{
+		glUniform1i(location, 0);
+	}
 
-    return program;
+	return program;
+}
+
+//-------------------------------
+//-----Write Render To File------
+//-------------------------------
+void WriteToFile()
+{
+	image outputImage(renderCam->resolution.x, renderCam->resolution.y);
+
+	for(int x=0; x<renderCam->resolution.x; x++)
+	{
+		for(int y=0; y<renderCam->resolution.y; y++)
+		{
+			int index = x + (y * renderCam->resolution.x);
+			outputImage.writePixelRGB(renderCam->resolution.x - x - 1,y,renderCam->image[index]);
+		}
+	}
+
+	string filename = renderCam->imageName;
+	string s;
+	stringstream out;
+	out << iterations;
+	s = out.str();
+	utilityCore::replaceString(filename, ".bmp", "_"+s+".bmp");
+	utilityCore::replaceString(filename, ".png", "_"+s+".png");
+	outputImage.saveImageRGB(filename);
+	cout << "Saved frame " << s << " to " << filename << endl;
 }
 
 //-------------------------------
@@ -375,19 +518,19 @@ void cleanupCuda(){
 
 void deletePBO(GLuint* pbo){
   if (pbo) {
-    // unregister this buffer object with CUDA
-    cudaGLUnregisterBufferObject(*pbo);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, *pbo);
-    glDeleteBuffers(1, pbo);
-    
-    *pbo = (GLuint)NULL;
+	// unregister this buffer object with CUDA
+	cudaGLUnregisterBufferObject(*pbo);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, *pbo);
+	glDeleteBuffers(1, pbo);
+	
+	*pbo = (GLuint)NULL;
   }
 }
 
 void deleteTexture(GLuint* tex){
-    glDeleteTextures(1, tex);
-    *tex = (GLuint)NULL;
+	glDeleteTextures(1, tex);
+	*tex = (GLuint)NULL;
 }
  
 void shut_down(int return_code){
