@@ -1,0 +1,76 @@
+﻿Build started 10/12/2012 5:39:43 PM.
+     1>Project "C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\565Raytracer.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       AddCudaCompileDeps:
+       Skipping target "AddCudaCompileDeps" because all output files are up-to-date with respect to the input files.
+       CudaBuild:
+       Skipping target "CudaBuild" because all output files are up-to-date with respect to the input files.
+       ClCompile:
+         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\src\glslUtility.cpp ..\..\src\image.cpp ..\..\src\main.cpp ..\..\src\scene.cpp ..\..\src\utilities.cpp
+         glslUtility.cpp
+         image.cpp
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(20): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(21): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(22): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(23): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(24): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(25): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(26): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+         main.cpp
+         Note: including lib: glut32.lib
+         
+     1>..\..\src\main.cpp(108): warning C4018: '<' : signed/unsigned mismatch
+     1>..\..\src\main.cpp(117): warning C4018: '<' : signed/unsigned mismatch
+     1>..\..\src\main.cpp(120): warning C4018: '<' : signed/unsigned mismatch
+         scene.cpp
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(20): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(21): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(22): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(23): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(24): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(25): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(26): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>..\..\src\scene.cpp(148): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(238): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(243): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(245): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(247): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(249): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(254): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>..\..\src\scene.cpp(256): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+         utilities.cpp
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(20): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(21): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(22): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(23): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(24): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(25): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>c:\users\himanshu\documents\github\project2-pathtracer\src\utilities.h(26): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\src\stb_image\stb_image.c ..\..\src\stb_image\stb_image_write.c
+         stb_image.c
+         stb_image_write.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:../shared/glew/lib /LIBPATH:../shared/freeglut/lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\lib\Win32" cudart.lib glew32.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\565Raytracer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.lib" /MACHINE:X86 "C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj"
+         Release\glslUtility.obj
+         Release\image.obj
+         Release\main.obj
+         Release\scene.obj
+         Release\stb_image.obj
+         Release\stb_image_write.obj
+         Release\utilities.obj
+         Generating code
+         Finished generating code
+         565Raytracer.vcxproj -> C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe;#1" /manifest Release\565Raytracer.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Release\565Raytracer.unsuccessfulbuild".
+         Touching "Release\565Raytracer.lastbuildstate".
+     1>Done Building Project "C:\Users\Himanshu\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:06.64
