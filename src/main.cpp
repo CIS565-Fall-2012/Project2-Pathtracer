@@ -77,6 +77,8 @@ int main(int argc, char** argv){
   glUseProgram(passthroughProgram);
   glActiveTexture(GL_TEXTURE0);
 
+
+
   #ifdef __APPLE__
 	  // send into GLFW main loop
 	  while(1){
@@ -224,6 +226,24 @@ void runCuda(){
 		switch (key) 
 		{
 		   case(27):
+		   case 'w':
+			   renderCam->positions->z += 0.5f;
+			   break;
+		   case 's':
+			   renderCam->positions->z -= 0.5f;
+			   break;
+		   case 'a':
+			   renderCam->positions->x += 0.5f;
+			   break;
+		   case 'd':
+			   renderCam->positions->x -= 0.5f;
+			   break;
+		   case 'u':
+			   renderCam->positions->y += 0.5f;
+			   break;
+		   case 'i':
+			   renderCam->positions->y -= 0.5f;
+			   break;
 			   exit(1);
 			   break;
 		}
