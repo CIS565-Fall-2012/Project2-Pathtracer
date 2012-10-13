@@ -10,18 +10,22 @@ PROJECT SUBMISSION
 The features included in my GPU-based Parallel Path Tracer are as follows:
 
 Ray Parallelization
+----------------------------------------
 	Instead of working on parallelizing by pixel, I working on this project by parallelizing rays. That is, instead of assign 1 thread per pixel, I assigned 1 thread per ray. This became fruitful in the scenes where there was openness. Since most rays would be terminated early, in the later iterations I saved compute space by not having to call the rays which were dead. This was done by using stream compaction using the thrust::remove_if() function.
 
 Global Illumination
+----------------------------------------
 	Parallel path tracing makes global illumination really easy. Since we are averaging a large number of iterations, global illumination by distributed random sampling becomes very easy and very efficient. All you have to take care of is the terminating conditions and you BSDF (well this can be a little tricky). My approach to BSDF was to start of simple - handle only diffuse objects, then move to reflective, refractive, glossy etc. Building up from a simple model BSDF is very crucial to understanding how it works.
 	My BDSF function handles diffuse, reflective, refractive, glossy, transparent, and translucent surfaces.
 	It produces caustics, soft shadows, color bleeding effects.
 	I have also used a very basic form of tone mapping in some of my images.
 
 Super-sampled Anti-aliasing
+----------------------------------------
 	The advantage of working on a path tracer on a GPU is that you have loads of compute power at your disposal. Implementing super-sampled anti-aliasing was a piece of cake given this advantage. For each ray that you begin, just jitter it a little before you shoot the ray. Since we are going to iterating over a lot of frames, averaging the values makes it extremely good for anti-aliasing because we can get infinite number of jittered points.
 
 Depth of Field
+----------------------------------------
 	Firstly, I must thank my friend classmate, Tiju Thomas, for helping understand how to implement this. 
 	For depth of field, I use a Focal Distance. All object at this focal distance from the camera are in focus whereas other objects are blurred.
 	The algorithm used is as follows:
@@ -34,13 +38,16 @@ Depth of Field
 	I also implemented keyboard inputs to increase or decrease the focal distance.
 
 Fresnel Refraction
+----------------------------------------
 	I used Schlick's approximation to compute Fresnel coefficients. To all those who think Fresnel is hard (I used to be one of them), the best way to get around is to implement a perfect Snell Law refraction mechanism. Once this is done Fresnel is a piece of cake. 
 	Use Schlick's approximation to compute the reflection and refraction coefficients. Use a random number to choose reflection or refraction. If its reflection, do regular reflection. If its refraction then  do refraction or reflection (based on critical angle).
 
 You can find my blog at: mzshehzanayub.blogspot.com
+-----------------------------------------------------
 I'll keep updating my blog as I add more features to it. Sometime in the near future, I will definitely add a OBJ loader.
 
 I also plan to make a tutorial video that will explain all concepts I have used in my path tracer.
+
 -------------------------------------------------------------------------------
 HOW TO MAKE IT WORK
 -------------------------------------------------------------------------------
