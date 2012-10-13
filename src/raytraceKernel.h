@@ -15,6 +15,7 @@
 #include "sceneStructs.h"
 #include <cutil_math.h>
 
-void cudaRaytraceCore(uchar4* pos, camera* renderCam, int frame, int iterations, material* materials, int numberOfMaterials, geom* geoms, int numberOfGeoms);
+void cudaRaytraceCore(uchar4* pos, camera* renderCam, int frame, unsigned int iterations, material* materials, unsigned int numberOfMaterials, 
+	                  geom* geoms, unsigned int numberOfGeoms, std::vector<Mesh>& meshes);
 
 #endif

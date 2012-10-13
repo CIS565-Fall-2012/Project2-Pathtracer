@@ -107,26 +107,30 @@ void runCuda(){
   
   if(iterations<renderCam->iterations){
     uchar4 *dptr=NULL;
-    iterations++;
+    ++iterations;
     cudaGLMapBufferObject((void**)&dptr, pbo);
   
     //pack geom and material arrays
     geom* geoms = new geom[renderScene->objects.size()];
     material* materials = new material[renderScene->materials.size()];
-    
-    for(int i=0; i<renderScene->objects.size(); i++){
+	
+	for(unsigned int i=0; i<renderScene->objects.size(); ++i){
       geoms[i] = renderScene->objects[i];
     }
-    for(int i=0; i<renderScene->materials.size(); i++){
+    for(unsigned int i=0; i<renderScene->materials.size(); ++i){
       materials[i] = renderScene->materials[i];
     }
-    
   
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), 
+		             geoms, renderScene->objects.size(), renderScene->meshes);
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
+
+	// Cleanup
+	delete[] geoms;
+	delete[] materials;
   }else{
 
     if(!finishedRender){
@@ -136,13 +140,13 @@ void runCuda(){
       for(int x=0; x<renderCam->resolution.x; x++){
         for(int y=0; y<renderCam->resolution.y; y++){
           int index = x + (y * renderCam->resolution.x);
-          outputImage.writePixelRGB(x,y,renderCam->image[index]);
+          outputImage.writePixelRGB(renderCam->resolution.x-x,y,renderCam->image[index]);
         }
       }
       
       gammaSettings gamma;
-      gamma.applyGamma = true;
-      gamma.gamma = 1.0/2.2;
+      gamma.applyGamma = false;
+      gamma.gamma = 1.0/4.0;
       gamma.divisor = renderCam->iterations;
       outputImage.setGammaSettings(gamma);
       string filename = renderCam->imageName;

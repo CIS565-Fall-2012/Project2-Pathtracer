@@ -41,7 +41,8 @@ int scene::loadObject(string objectid){
         cout << "Loading Object " << id << "..." << endl;
         geom newObject;
         string line;
-        
+        newObject.meshIndex = -1;
+
         //load object type 
         getline(fp_in,line);
         if (!line.empty() && fp_in.good()){
@@ -62,6 +63,8 @@ int scene::loadObject(string objectid){
                     cout << "Creating new mesh..." << endl;
                     cout << "Reading mesh from " << line << "... " << endl;
 		    		newObject.type = MESH;
+					LoadMesh(line);
+					newObject.meshIndex = meshes.size()-1;
                 }else{
                     cout << "ERROR: " << line << " is not a valid object type!" << endl;
                     return -1;
@@ -116,6 +119,7 @@ int scene::loadObject(string objectid){
 	newObject.scales = new glm::vec3[frameCount];
 	newObject.transforms = new cudaMat4[frameCount];
 	newObject.inverseTransforms = new cudaMat4[frameCount];
+	newObject.inverseTransposeTransforms = new cudaMat4[frameCount];
 	for(int i=0; i<frameCount; i++){
 		newObject.translations[i] = translations[i];
 		newObject.rotations[i] = rotations[i];
@@ -123,6 +127,7 @@ int scene::loadObject(string objectid){
 		glm::mat4 transform = utilityCore::buildTransformationMatrix(translations[i], rotations[i], scales[i]);
 		newObject.transforms[i] = utilityCore::glmMat4ToCudaMat4(transform);
 		newObject.inverseTransforms[i] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
+		newObject.inverseTransposeTransforms[i] = utilityCore::glmMat4ToCudaMat4(glm::inverse(glm::transpose(transform)));
 	}
 	
         objects.push_back(newObject);
@@ -138,7 +143,7 @@ int scene::loadCamera(){
 	float fovy;
 	
 	//load static properties
-	for(int i=0; i<4; i++){
+	for(int i=0; i<6; i++){
 		string line;
 		getline(fp_in,line);
 		vector<string> tokens = utilityCore::tokenizeString(line);
@@ -150,6 +155,10 @@ int scene::loadCamera(){
 			newCamera.iterations = atoi(tokens[1].c_str());
 		}else if(strcmp(tokens[0].c_str(), "FILE")==0){
 			newCamera.imageName = tokens[1];
+		}else if(strcmp(tokens[0].c_str(), "APERTURE")==0){
+			newCamera.aperture = atof(tokens[1].c_str());
+		}else if(strcmp(tokens[0].c_str(), "FOCAL_DISTANCE")==0){
+			newCamera.focalDistance = atof(tokens[1].c_str());
 		}
 	}
         
@@ -240,9 +249,14 @@ int scene::loadMaterial(string materialid){
 				glm::vec3 specColor( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
 				newMaterial.specularColor = specColor;
 			}else if(strcmp(tokens[0].c_str(), "REFL")==0){
-				newMaterial.hasReflective = atof(tokens[1].c_str());
+				newMaterial.reflectivity = atof(tokens[1].c_str());
 			}else if(strcmp(tokens[0].c_str(), "REFR")==0){
-				newMaterial.hasRefractive = atof(tokens[1].c_str());
+				float temp = atof(tokens[1].c_str());
+				if (temp > 0.01f) {
+					newMaterial.hasRefractive = true;
+				} else {
+					newMaterial.hasRefractive = false;
+				}
 			}else if(strcmp(tokens[0].c_str(), "REFRIOR")==0){
 				newMaterial.indexOfRefraction = atof(tokens[1].c_str());					  
 			}else if(strcmp(tokens[0].c_str(), "SCATTER")==0){
@@ -260,4 +274,55 @@ int scene::loadMaterial(string materialid){
 		materials.push_back(newMaterial);
 		return 1;
 	}
+}
+
+int scene::LoadMesh(string filename)
+{
+	char* fname = (char*)filename.c_str();
+	ifstream fp_mesh;
+	fp_mesh.open(fname);
+	if(fp_mesh.is_open())
+	{
+		Mesh mesh;
+	
+		while(fp_mesh.good())
+		{
+			string line;
+			getline(fp_mesh, line);
+			if(!line.empty())
+			{
+				vector<string> tokens = utilityCore::tokenizeString(line);
+				if(strcmp(tokens[0].c_str(), "v")==0)
+				{
+					if (tokens.size() < 4)
+					{
+						std::cout << "Error in file data - (vertices)" << std::endl;
+						return -1;
+					}
+					mesh.vertices.push_back(glm::vec3(atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str())));
+				}
+
+				if(strcmp(tokens[0].c_str(), "f")==0)
+				{
+					if (tokens.size() < 4)
+					{
+						std::cout << "Error in file data - (faces)" << std::endl;
+						return -1;
+					}
+					Triangle tri = Triangle(atoi(tokens[1].c_str())-1, atoi(tokens[2].c_str())-1, atoi(tokens[3].c_str())-1);
+					mesh.faces.push_back(tri);
+
+					// Determine normals
+					mesh.normals.push_back(mesh.CalculateNormals(mesh.faces.size()-1));
+				}
+			}
+		}
+
+		if (mesh.vertices.size() > 0)
+		{
+			meshes.push_back(mesh);
+		}
+	}
+
+	return 0;
 }
