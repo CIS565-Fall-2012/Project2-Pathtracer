@@ -27,6 +27,8 @@ http://gpuprojects.blogspot.com/2012/10/path-tracer.html
 Instruction on buiding and running
 -------------------------------------------------------------------------------
 Key board and mouse control
+
 1. camera movement  w,s,a,d  Or  mouse left click+mouse move
+
 2. camera zooms  q,e  Or  mouse right click+mouse move
 
