@@ -40,7 +40,13 @@ __host__ __device__  bool calculateScatterAndAbsorption(ray& r, float& depth, Ab
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
 __host__ __device__ glm::vec3 calculateTransmissionDirection(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR) {
-  return glm::vec3(0,0,0);
+	float n = incidentIOR / transmittedIOR;
+	float cosAngle = glm::dot(normal, -incident);  
+	float k = 1.0f - ( n*n * (1.0 - cosAngle * cosAngle)); 
+	glm::vec3 transmission = n * incident + (n * cosAngle - sqrt(k)) * normal;
+		
+	return glm::normalize(transmission);
+	//return glm::vec3(0,0,0);
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
@@ -61,7 +67,6 @@ __host__ __device__ Fresnel calculateFresnel(glm::vec3 normal, glm::vec3 inciden
 	float cosAngleIn = glm::dot(incident, normal);
 	float n1 = incidentIOR, n2 = transmittedIOR;
 	float tmpA = (n1*n1) / (n2*n2) * (1.0f - cosAngleIn * cosAngleIn);
-	//float sinSqrThetaT = (n1 / transmitted) * (incidentIOR / transmittedIOR) * (1.0f - cosAngleIn * cosAngleIn);
 	float cosAngleTran = sqrt(1.0f - tmpA);
 	
 	float Rs = ( (n1*cosAngleIn - n2*cosAngleTran) / ( n1*cosAngleIn + n2*cosAngleTran)) *
@@ -120,7 +125,8 @@ __host__ __device__ glm::vec3 getRandomDirectionInSphere(float xi1, float xi2)
 //returns 0 if diffuse scatter, 1 if reflected, 2 if transmitted.
 __host__ __device__ int calculateBSDF(ray& r, glm::vec3 intersect, glm::vec3 normal, glm::vec3 emittedColor, 
                                        AbsorptionAndScatteringProperties& currentAbsorptionAndScattering, 
-                                       glm::vec3& color, glm::vec3& unabsorbedColor, material m, float xi1, float xi2,int closestGeomIndex){
+                                      glm::vec3& color, glm::vec3& unabsorbedColor, material m, float xi1, float xi2,int closestGeomIndex){
+	//Reflective material
 	if(m.hasReflective > 0)
 	{
 		 r.continueFlag = true;
@@ -128,9 +134,13 @@ __host__ __device__ int calculateBSDF(ray& r, glm::vec3 intersect, glm::vec3 nor
 		 r.origin = intersect + r.direction * 0.01f;
 		 color = m.color;
 	}
+	
+	//Refractive material--still working on it
+	else if(m.hasRefractive > 0) ;
+	
+	//Diffuse material
 	else
 	{
-
 		r.continueFlag = true;
 		r.direction = calculateRandomDirectionInHemisphere(glm::normalize(normal), xi1, xi2);
 		r.origin = intersect + r.direction * 0.01f;

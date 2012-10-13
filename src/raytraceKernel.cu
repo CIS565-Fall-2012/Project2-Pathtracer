@@ -62,6 +62,7 @@ __host__ __device__ ray raycastFromCameraKernel(glm::vec2 resolution, float time
 	
 	r.direction = glm::normalize(Ppoint - eye);
 	r.continueFlag = true;
+
 	return r;
 }
 
@@ -110,23 +111,36 @@ __global__ void sendImageToPBO(uchar4* PBOpos, glm::vec2 resolution, glm::vec3* 
 }
 
 //generate rays for further ray tracing
-__global__ void generateRay(ray *rays, cameraData cam, float iter)
+__global__ void generateRay(ray *rays, cameraData cam, float iter, float focus)
 {
 	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
 	int index = x + (y * cam.resolution.x);
 	
+	//for anti-aliasing
 	thrust::default_random_engine rng( hash(index * iter) );
 	thrust::uniform_real_distribution<float> X(-0.5, 0.5);
-	float u = X(rng);//for anti-aliasing
+	float u = X(rng);
 	float v = X(rng);
 	
 	if(x <= cam.resolution.x && y <= cam.resolution.y)
 	{
-		rays[index] = raycastFromCameraKernel(cam.resolution, 0.0f, x+u, y+v, cam.position, cam.view, cam.up, cam.fov);
+		//rays[index] = raycastFromCameraKernel(cam.resolution, 0.0f, x, y, cam.position, cam.view, cam.up, cam.fov);
+		// ///////////////////////////////////////////////////////////////////////////////////////
+		//Anti-aliasing
+		rays[index] = raycastFromCameraKernel(cam.resolution, 0.0f, x+u, y+v, cam.position, cam.view, cam.up, cam.fov); 
 		rays[index].pixelId = index;
 	}
-	//__syncthreads();
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//DEPTH FIELD
+	glm::vec3 FOC = rays[index].origin + rays[index].direction * focus;
+	thrust::uniform_real_distribution<float> Y(-0.4, 0.4);
+	float offsetX = Y(rng), offsetY = Y(rng);
+	rays[index].origin += glm::vec3(offsetX, offsetY, 0.0f);
+	rays[index].direction = glm::normalize(FOC - rays[index].origin);
+	/////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 //This function returns the closest Geometry's ID
@@ -156,7 +170,7 @@ __global__ void Accumulate(glm::vec2 resolution, glm::vec3* colors, float iterat
 	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
 	int index = x + (y * resolution.x);
-	colors[index] = ( colors[index] * ( iterations- 1 )+ current[index] ) / iterations; // / iterations;
+	colors[index] = ( colors[index] + current[index] * ( iterations- 1 ) ) / iterations; // / iterations;
 }
 
 //TODO: IMPLEMENT THIS FUNCTION
@@ -175,10 +189,7 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 		glm::vec3 colResult;
 
 		int hitCounter = 0;
-		if(rayDepth == 1 ) 
-		{
-			colors[r.pixelId] = glm:: vec3(1,1,1);
-		}
+		if(rayDepth == 1 )	colors[r.pixelId] = glm:: vec3(1,1,1);
 
 		if( index > numOfRays || r.continueFlag==false ) return;
 		glm::vec3 intersecP, norm;
@@ -240,8 +251,6 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 		}
 	}//this is for the if(x <= cam.resolution.x && y <= cam.resolution.y)
 }
-
-
 
 //TODO: FINISH THIS FUNCTION
 // Wrapper for the __global__ call that sets up the kernel calls and does a ton of memory management
@@ -317,9 +326,9 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
  ray *cudarays = NULL;
  cudaMalloc((void**)&cudarays, numOfRays * sizeof(ray));
  cudaMemcpy(cudarays, rays, numOfRays * sizeof(ray), cudaMemcpyHostToDevice);
- 
-
- generateRay<<<fullBlocksPerGrid, threadsPerBlock>>>(cudarays,cam,iterations);
+ //////////////////////////////////////////////Focused on the green sphere's Z
+ float focus =17;
+ generateRay<<<fullBlocksPerGrid, threadsPerBlock>>>(cudarays,cam,iterations,focus);
  //kernel launches
  //traceDepth = 10;
 
@@ -335,9 +344,9 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	 numOfRays = lastRays_ptr.get() - firstRays_ptr.get();
 	 blocksPerGrid = dim3( (int)ceil(renderCam->resolution.x/tileSize), (int)ceil(renderCam->resolution.x)/tileSize);
  }
- 
-  sendImageToPBO<<<fullBlocksPerGrid, threadsPerBlock>>>(PBOpos, renderCam->resolution, cudaimage);
   Accumulate<<<fullBlocksPerGrid, threadsPerBlock>>>( renderCam->resolution, cudaimage, iterations, current);
+  sendImageToPBO<<<fullBlocksPerGrid, threadsPerBlock>>>(PBOpos, renderCam->resolution, cudaimage);
+
   //retrieve image from GPU
   cudaMemcpy( renderCam->image, cudaimage, (int)renderCam->resolution.x*(int)renderCam->resolution.y*sizeof(glm::vec3), cudaMemcpyDeviceToHost);
 
@@ -346,7 +355,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	cudaFree( current );
 	cudaFree( cudageoms );
 	cudaFree( cudaMaterials );
-	cudaFree(cudarays);
+	cudaFree( cudarays );
 
 
   delete geomList;

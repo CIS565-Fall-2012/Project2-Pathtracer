@@ -23,8 +23,7 @@ struct ray {
 };
 
 struct rayContinueFalse{
-	__host__ __device__  bool operator()(ray r)
-	{	 return !r.continueFlag;	}
+	__host__ __device__  bool operator()(ray r) {return !r.continueFlag;}
 };
 
 struct geom {
