@@ -126,6 +126,8 @@ int scene::loadObject(string objectid){
 	}
 	
         objects.push_back(newObject);
+
+		
 	
 	cout << "Loaded " << frameCount << " frames for Object " << objectid << "!" << endl;
         return 1;
@@ -254,6 +256,12 @@ int scene::loadMaterial(string materialid){
 				newMaterial.reducedScatterCoefficient = atof(tokens[1].c_str());					  
 			}else if(strcmp(tokens[0].c_str(), "EMITTANCE")==0){
 				newMaterial.emittance = atof(tokens[1].c_str());					  
+			
+			}else if(strcmp(tokens[0].c_str(), "TEXTURE")==0){
+				newMaterial.texture = atof(tokens[1].c_str());					  
+			
+			}else if(strcmp(tokens[0].c_str(), "AREALIGHT")==0){
+				newMaterial.areaLight = atof(tokens[1].c_str());					  
 			
 			}
 		}

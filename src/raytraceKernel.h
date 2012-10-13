@@ -15,6 +15,15 @@
 #include "sceneStructs.h"
 #include <cutil_math.h>
 
+ struct is_ray_stopped
+  {
+    __host__ __device__
+    bool operator()(const ray x)
+    {
+		return x.hasStopped;
+    }
+  };
+
 void cudaRaytraceCore(uchar4* pos, camera* renderCam, int frame, int iterations, material* materials, int numberOfMaterials, geom* geoms, int numberOfGeoms);
 
 #endif

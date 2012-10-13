@@ -16,6 +16,14 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	int colorIndex;
+	float reductionCoeficient;
+	float IOR;
+	bool hasStopped;
+	bool isRayInside;
+	glm::vec3 color;
+
+	
 };
 
 struct geom {
@@ -47,6 +55,21 @@ struct cameraData {
 	glm::vec2 fov;
 };
 
+struct material{
+	glm::vec3 color;
+	float specularExponent;
+	glm::vec3 specularColor;
+	float hasReflective;
+	float hasRefractive;
+	float indexOfRefraction;
+	float hasScatter;
+	glm::vec3 absorptionCoefficient;
+	float reducedScatterCoefficient;
+	float emittance;
+	float areaLight;
+	float texture;
+	
+};
 struct camera {
 	glm::vec2 resolution;
 	glm::vec3* positions;
@@ -60,17 +83,7 @@ struct camera {
 	std::string imageName;
 };
 
-struct material{
-	glm::vec3 color;
-	float specularExponent;
-	glm::vec3 specularColor;
-	float hasReflective;
-	float hasRefractive;
-	float indexOfRefraction;
-	float hasScatter;
-	glm::vec3 absorptionCoefficient;
-	float reducedScatterCoefficient;
-	float emittance;
-};
+
+
 
 #endif //CUDASTRUCTS_H
