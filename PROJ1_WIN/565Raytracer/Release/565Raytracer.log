@@ -1,0 +1,15 @@
+﻿Build started 10/12/2012 11:27:58 PM.
+     1>Project "H:\CIS565 GPU\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release\565Raytracer.lastbuildstate".
+       CudaClean:
+         cmd.exe /C "C:\Users\ntndeyx\AppData\Local\Temp\f4793ac191f940d7af98e53079fd1efa.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "S:\VS2010\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "H:\CIS565 GPU\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "H:\CIS565 GPU\GitHub\Project2-Pathtracer\src\raytraceKernel.cu" -clean
+         
+         H:\CIS565 GPU\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "S:\VS2010\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "H:\CIS565 GPU\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "H:\CIS565 GPU\GitHub\Project2-Pathtracer\src\raytraceKernel.cu" -clean 
+         Deleting file "Release\raytraceKernel.cu.deps".
+     1>Done Building Project "H:\CIS565 GPU\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.59

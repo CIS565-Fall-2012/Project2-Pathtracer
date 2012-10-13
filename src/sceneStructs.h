@@ -16,6 +16,14 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	bool continueFlag;
+	int pixelId;
+	bool insideFlag;
+	int curObjId;
+};
+
+struct rayContinueFalse{
+	__host__ __device__  bool operator()(ray r) {return !r.continueFlag;}
 };
 
 struct geom {
