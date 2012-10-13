@@ -11,6 +11,10 @@ Additional Features implemented:
 * Fresnel-based Refraction, i.e. glass
 * Depth of field - working on it
 
+
+
+
+
 Blog: http://cudapathtacer.blogspot.com/
 
 
