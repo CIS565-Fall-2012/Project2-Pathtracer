@@ -1,5 +1,6 @@
+-------------------------------------------------------------------------------
 Assignment Submission
-
+-------------------------------------------------------------------------------
 Funtionality implemented:
 * Full global illumination (including soft shadows, color bleeding, etc.) by pathtracing rays through the scene. 
 * Properly accumulating emittance and colors to generate a final image
@@ -9,13 +10,14 @@ Funtionality implemented:
 
 Additional Features implemented:
 * Fresnel-based Refraction, i.e. glass
-* Depth of field - working on it
+* Depth of field - implemented it but could not get the effects properly. Hence removed it.
 
 
 
-
-
-Blog: http://cudapathtacer.blogspot.com/
+-------------------------------------------------------------------------------
+Blog:
+-------------------------------------------------------------------------------
+ http://cudapathtacer.blogspot.com/
 
 
 
