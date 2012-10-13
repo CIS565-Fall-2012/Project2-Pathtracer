@@ -8,13 +8,26 @@
 #ifndef RAYTRACEKERNEL_H
 #define PATHTRACEKERNEL_H
 
-#include <stdio.h>
 #include <thrust/random.h>
+#include <stdio.h>
 #include <cuda.h>
 #include <cmath>
 #include "sceneStructs.h"
 #include <cutil_math.h>
 
-void cudaRaytraceCore(uchar4* pos, camera* renderCam, int frame, int iterations, material* materials, int numberOfMaterials, geom* geoms, int numberOfGeoms);
+struct is_garbage_ray
+{
+	__host__ __device__
+		bool operator()(const ray a)
+	{
+		//return true;
+		//return false;
+		return (a.pixelIndex == -10000);
+		//return ((a.origin.x == -10000.0f) && (a.origin.y == -10000.0f) && (a.origin.z == -10000.0f));
+	}
+};
+
+void cudaRaytraceCore(uchar4* pos, camera* renderCam, int frame, int iterations, material* materials, int numberOfMaterials, geom* geoms, int numberOfGeoms,
+	light* lights, int numberOfLights);
 
 #endif
