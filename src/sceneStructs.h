@@ -16,6 +16,9 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	glm::vec3 color_ray;
+	int index_ray;
+	bool useful;
 };
 
 struct geom {
@@ -26,6 +29,7 @@ struct geom {
 	glm::vec3* rotations;
 	glm::vec3* scales;
 	cudaMat4* transforms;
+	cudaMat4* tranposeTranforms;
 	cudaMat4* inverseTransforms;
 };
 
@@ -36,6 +40,7 @@ struct staticGeom {
 	glm::vec3 rotation;
 	glm::vec3 scale;
 	cudaMat4 transform;
+	cudaMat4 tranposeTranform;
 	cudaMat4 inverseTransform;
 };
 
@@ -45,6 +50,7 @@ struct cameraData {
 	glm::vec3 view;
 	glm::vec3 up;
 	glm::vec2 fov;
+	
 };
 
 struct camera {
