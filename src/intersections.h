@@ -35,7 +35,7 @@ __host__ __device__ unsigned int hash(unsigned int a){
 
 //Quick and dirty epsilon check
 __host__ __device__ bool epsilonCheck(float a, float b){
-    if(fabs(fabs(a)-fabs(b))<EPSILON){
+    if(fabs(fabs(a)-fabs(b))<0.000000001){
         return true;
     }else{
         return false;
@@ -76,91 +76,254 @@ __host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3&
 
 //Cube intersection test, return -1 if no intersection, otherwise, distance to intersection
 __host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
-    glm::vec3 currentNormal = glm::vec3(0,0,0);
+    //glm::vec3 currentNormal = glm::vec3(0,0,0);
 
-    ray ro = r;
+    //ray ro = r;
 
-    glm::vec3 iP0 = multiplyMV(box.inverseTransform,glm::vec4(r.origin, 1.0f));
-    glm::vec3 iP1 = multiplyMV(box.inverseTransform,glm::vec4(r.origin+r.direction, 1.0f));
-    glm::vec3 iV0 = iP1 - iP0;
+    //glm::vec3 iP0 = multiplyMV(box.inverseTransform,glm::vec4(r.origin, 1.0f));
+    //glm::vec3 iP1 = multiplyMV(box.inverseTransform,glm::vec4(r.origin+r.direction, 1.0f));
+    //glm::vec3 iV0 = iP1 - iP0;
 
-    r.origin = iP0; 
-    r.direction = glm::normalize(iV0);
+    //r.origin = iP0; 
+    //r.direction = glm::normalize(iV0);
 
-    float tmin, tmax, tymin, tymax, tzmin, tzmax;
+    //float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
-    glm::vec3 rsign = getSignOfRay(r);
-    glm::vec3 rInverseDirection = getInverseDirectionOfRay(r);
+    //glm::vec3 rsign = getSignOfRay(r);
+    //glm::vec3 rInverseDirection = getInverseDirectionOfRay(r);
 
-    if((int)rsign.x==0){
-      tmin = (boxMin.x - r.origin.x) * rInverseDirection.x;
-      tmax = (boxMax.x - r.origin.x) * rInverseDirection.x;
-    }else{
-      tmin = (boxMax.x - r.origin.x) * rInverseDirection.x;
-      tmax = (boxMin.x - r.origin.x) * rInverseDirection.x;
-    }
+    //if((int)rsign.x==0){
+    //  tmin = (boxMin.x - r.origin.x) * rInverseDirection.x;
+    //  tmax = (boxMax.x - r.origin.x) * rInverseDirection.x;
+    //}else{
+    //  tmin = (boxMax.x - r.origin.x) * rInverseDirection.x;
+    //  tmax = (boxMin.x - r.origin.x) * rInverseDirection.x;
+    //}
 
-    if((int)rsign.y==0){
-      tymin = (boxMin.y - r.origin.y) * rInverseDirection.y;
-      tymax = (boxMax.y - r.origin.y) * rInverseDirection.y;
-    }else{
-      tymin = (boxMax.y - r.origin.y) * rInverseDirection.y;
-      tymax = (boxMin.y - r.origin.y) * rInverseDirection.y;
-    }
+    //if((int)rsign.y==0){
+    //  tymin = (boxMin.y - r.origin.y) * rInverseDirection.y;
+    //  tymax = (boxMax.y - r.origin.y) * rInverseDirection.y;
+    //}else{
+    //  tymin = (boxMax.y - r.origin.y) * rInverseDirection.y;
+    //  tymax = (boxMin.y - r.origin.y) * rInverseDirection.y;
+    //}
 
-    if ( (tmin > tymax) || (tymin > tmax) ){
-        return -1;
-    }
-    if (tymin > tmin){
-        tmin = tymin;
-    }
-    if (tymax < tmax){
-        tmax = tymax;
-    }
+    //if ( (tmin > tymax) || (tymin > tmax) ){
+    //    return -1;
+    //}
+    //if (tymin > tmin){
+    //    tmin = tymin;
+    //}
+    //if (tymax < tmax){
+    //    tmax = tymax;
+    //}
 
-    if((int)rsign.z==0){
-      tzmin = (boxMin.z - r.origin.z) * rInverseDirection.z;
-      tzmax = (boxMax.z - r.origin.z) * rInverseDirection.z;
-    }else{
-      tzmin = (boxMax.z - r.origin.z) * rInverseDirection.z;
-      tzmax = (boxMin.z - r.origin.z) * rInverseDirection.z;
-    }
+    //if((int)rsign.z==0){
+    //  tzmin = (boxMin.z - r.origin.z) * rInverseDirection.z;
+    //  tzmax = (boxMax.z - r.origin.z) * rInverseDirection.z;
+    //}else{
+    //  tzmin = (boxMax.z - r.origin.z) * rInverseDirection.z;
+    //  tzmax = (boxMin.z - r.origin.z) * rInverseDirection.z;
+    //}
 
-    if ( (tmin > tzmax) || (tzmin > tmax) ){
-        return -1;
-    }
-    if (tzmin > tmin){
-        tmin = tzmin;
-    }
-    if (tzmax < tmax){
-        tmax = tzmax;
-    }
-    if(tmin<0){
-        return -1;
-    }
+    //if ( (tmin > tzmax) || (tzmin > tmax) ){
+    //    return -1;
+    //}
+    //if (tzmin > tmin){
+    //    tmin = tzmin;
+    //}
+    //if (tzmax < tmax){
+    //    tmax = tzmax;
+    //}
+    //if(tmin<0){
+    //    return -1;
+    //}
 
-    glm::vec3 osintersect = r.origin + tmin*r.direction;
+    //glm::vec3 osintersect = r.origin + tmin*r.direction;
 
-    if(abs(osintersect.x-abs(boxMax.x))<.001){
-        currentNormal = glm::vec3(1,0,0);
-    }else if(abs(osintersect.y-abs(boxMax.y))<.001){
-        currentNormal = glm::vec3(0,1,0);
-    }else if(abs(osintersect.z-abs(boxMax.z))<.001){
-        currentNormal = glm::vec3(0,0,1);
-    }else if(abs(osintersect.x+abs(boxMin.x))<.001){
-        currentNormal = glm::vec3(-1,0,0);
-    }else if(abs(osintersect.y+abs(boxMin.y))<.001){
-        currentNormal = glm::vec3(0,-1,0);
-    }else if(abs(osintersect.z+abs(boxMin.z))<.001){
-        currentNormal = glm::vec3(0,0,-1);
-    }
+    //if(abs(osintersect.x-abs(boxMax.x))<.001){
+    //    currentNormal = glm::vec3(1,0,0);
+    //}else if(abs(osintersect.y-abs(boxMax.y))<.001){
+    //    currentNormal = glm::vec3(0,1,0);
+    //}else if(abs(osintersect.z-abs(boxMax.z))<.001){
+    //    currentNormal = glm::vec3(0,0,1);
+    //}else if(abs(osintersect.x+abs(boxMin.x))<.001){
+    //    currentNormal = glm::vec3(-1,0,0);
+    //}else if(abs(osintersect.y+abs(boxMin.y))<.001){
+    //    currentNormal = glm::vec3(0,-1,0);
+    //}else if(abs(osintersect.z+abs(boxMin.z))<.001){
+    //    currentNormal = glm::vec3(0,0,-1);
+    //}
 
-    intersectionPoint = multiplyMV(box.transform, glm::vec4(osintersect, 1.0));
+    //intersectionPoint = multiplyMV(box.transform, glm::vec4(osintersect, 1.0));
 
 
 
-    normal = multiplyMV(box.transform, glm::vec4(currentNormal,0.0));
-    return glm::length(intersectionPoint-ro.origin);
+    //normal = multiplyMV(box.transform, glm::vec4(currentNormal,0.0));
+    //return glm::length(intersectionPoint-ro.origin);
+
+		glm::vec3 ro = multiplyMV(box.inverseTransform, glm::vec4(r.origin,1.0f));
+	glm::vec3 rd = glm::normalize(multiplyMV(box.inverseTransform, glm::vec4(r.direction,0.0f)));
+
+	ray rt; rt.origin = ro; rt.direction = rd;
+
+	glm::vec3 bl, bh;
+	bl = glm::vec3(-0.5, -0.5, -0.5);
+	bh = glm::vec3(0.5, 0.5, 0.5);
+
+	double tnear, tfar, t1, t2, temp;
+	tnear = -99999.0;
+	tfar = 99999.0;
+
+	if(abs(rt.direction.x) <= 0.001 && (rt.origin.x < bl.x || rt.origin.x > bh.x))
+		return -1;
+
+	else
+	{
+		t1 = (bl.x - rt.origin.x)/rt.direction.x;
+		t2 = (bh.x - rt.origin.x)/rt.direction.x;
+
+		if(t1 > t2)
+		{
+			temp = t1;
+			t1 = t2;
+			t2 = temp;
+		}
+
+		if(t1 > tnear)
+			tnear = t1;
+
+		if(t2 < tfar)
+			tfar = t2;
+
+		if(tnear > tfar)
+			return -1;
+
+		if(tfar < 0.001)
+			return -1;
+	}
+
+	if(abs(rt.direction.y) <= 0.001 && (rt.origin.y < bl.y || rt.origin.y > bh.y))
+		return -1;
+
+	else
+	{
+		t1 = (bl.y - rt.origin.y)/rt.direction.y;
+		t2 = (bh.y - rt.origin.y)/rt.direction.y;
+
+		if(t1 > t2)
+		{
+			temp = t1;
+			t1 = t2;
+			t2 = temp;
+		}
+
+		if(t1 > tnear)
+			tnear = t1;
+
+		if(t2 < tfar)
+			tfar = t2;
+
+		if(tnear > tfar)
+			return -1;
+
+		if(tfar < 0.001)
+			return -1;
+	}
+
+	if(abs(rt.direction.z) <= 0.001 && (rt.origin.z < bl.z || rt.origin.z > bh.z))
+		return -1;
+
+	else
+	{
+		t1 = (bl.z - rt.origin.z)/rt.direction.z;
+		t2 = (bh.z - rt.origin.z)/rt.direction.z;
+
+		if(t1 > t2)
+		{
+			temp = t1;
+			t1 = t2;
+			t2 = temp;
+		}
+
+		if(t1 > tnear)
+			tnear = t1;
+
+		if(t2 < tfar)
+			tfar = t2;
+
+		if(tnear > tfar)
+			return -1;
+
+		if(tfar < 0.001)
+			return -1;
+	}
+
+	if(abs(tnear) < 0.001)
+		return -1;
+
+	if(tnear < tfar)
+	{
+		glm::vec3 point = glm::vec3(rt.origin.x + tnear*rt.direction.x, rt.origin.y + tnear*rt.direction.y, rt.origin.z + tnear*rt.direction.z);
+		
+		if(fabs( point.x - 0.5 ) < 0.001)
+			normal = glm::vec3(1.0, 0.0, 0.0);
+		
+		if(fabs( point.x + 0.5 ) < 0.001)
+			normal = glm::vec3(-1.0, 0.0, 0.0);
+		
+		if(fabs( point.y - 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 1.0, 0.0);
+		
+		if(fabs( point.y + 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, -1.0, 0.0);
+		
+		if(fabs( point.z - 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 0.0, 1.0);
+		
+		if(fabs( point.z + 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 0.0, -1.0);
+
+		normal =  glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0)));
+		//normal = glm::normalize(normal);
+		glm::vec3 realIntersectionPoint = multiplyMV(box.transform, glm::vec4(getPointOnRay(rt, tnear), 1.0));
+		intersectionPoint = realIntersectionPoint;
+		return glm::length(r.origin - realIntersectionPoint);
+	}
+	
+	if(abs(tfar) < 0.001)
+		return -1;
+
+	if(tfar > 0.001)
+	{
+		glm::vec3 point = glm::vec3(rt.origin.x + tfar*rt.direction.x, rt.origin.y + tfar*rt.direction.y, rt.origin.z + tfar*rt.direction.z);
+		
+		if(fabs( point.x - 0.5 ) < 0.001)
+			normal = glm::vec3(1.0, 0.0, 0.0);
+		
+		if(fabs( point.x + 0.5 ) < 0.001)
+			normal = glm::vec3(-1.0, 0.0, 0.0);
+		
+		if(fabs( point.y - 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 1.0, 0.0);
+		
+		if(fabs( point.y + 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, -1.0, 0.0);
+		
+		if(fabs( point.z - 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 0.0, 1.0);
+		
+		if(fabs( point.z + 0.5 ) < 0.001)
+			normal = glm::vec3(0.0, 0.0, -1.0);
+		
+		normal =  glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0)));
+		//normal = glm::normalize(normal);
+		glm::vec3 realIntersectionPoint = multiplyMV(box.transform, glm::vec4(getPointOnRay(rt, tfar), 1.0));
+		intersectionPoint = realIntersectionPoint;
+		return glm::length(r.origin - realIntersectionPoint);
+	}
+
+    return -1;
 }
 
 //LOOK: Here's an intersection test example from a sphere. Now you just need to figure out cube and, optionally, triangle.

@@ -40,19 +40,30 @@ __host__ __device__  bool calculateScatterAndAbsorption(ray& r, float& depth, Ab
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
 __host__ __device__ glm::vec3 calculateTransmissionDirection(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR) {
-  return glm::vec3(0,0,0);
+    
+	float n = incidentIOR / transmittedIOR;
+	float costheta1 = glm::dot(normal, -incident);
+	//float temp = 1 - (n*n * (1 - costheta1*costheta1));
+	float costheta2 = sqrt(1 - n*n * (1 - costheta1*costheta1));
+
+	if(costheta1 > 0)
+		return(glm::normalize((n * incident) + (n*costheta1 - costheta2) * normal));
+	else
+		return(glm::normalize((n * incident) - (n*costheta1 - costheta2) * normal));
+
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
 __host__ __device__ glm::vec3 calculateReflectionDirection(glm::vec3 normal, glm::vec3 incident) {
-  //nothing fancy here
-  return glm::vec3(0,0,0);
+	//nothing fancy here
+	normal = glm::normalize(normal);
+	return glm::normalize(incident - 2.0f * (normal * glm::dot(incident, normal)));
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
 __host__ __device__ Fresnel calculateFresnel(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR, glm::vec3 reflectionDirection, glm::vec3 transmissionDirection) {
   Fresnel fresnel;
-
+  // Schlick's approx
   fresnel.reflectionCoefficient = 1;
   fresnel.transmissionCoefficient = 0;
   return fresnel;
@@ -65,14 +76,14 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
     
     float up = sqrt(xi1); // cos(theta)
     float over = sqrt(1 - up * up); // sin(theta)
-    float around = xi2 * TWO_PI;
+    float around = xi2 * 6.28;
     
     //Find a direction that is not the normal based off of whether or not the normal's components are all equal to sqrt(1/3) or whether or not at least one component is less than sqrt(1/3). Learned this trick from Peter Kutz.
     
     glm::vec3 directionNotNormal;
-    if (abs(normal.x) < SQRT_OF_ONE_THIRD) { 
+    if (abs(normal.x) < 0.577) { 
       directionNotNormal = glm::vec3(1, 0, 0);
-    } else if (abs(normal.y) < SQRT_OF_ONE_THIRD) { 
+    } else if (abs(normal.y) < 0.577) { 
       directionNotNormal = glm::vec3(0, 1, 0);
     } else {
       directionNotNormal = glm::vec3(0, 0, 1);
@@ -90,7 +101,15 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
 //Now that you know how cosine weighted direction generation works, try implementing non-cosine (uniform) weighted random direction generation. 
 //This should be much easier than if you had to implement calculateRandomDirectionInHemisphere.
 __host__ __device__ glm::vec3 getRandomDirectionInSphere(float xi1, float xi2) {
-  return glm::vec3(0,0,0);
+  
+	float theta = 6.28 * xi1;
+    float phi = acos(2*xi2 -1);
+
+    float x = cos(theta) * sin(phi);
+    float y = sin(theta) * sin(phi);
+    float z = cos(phi);
+ 
+    return glm::vec3(x,y,z);
 }
 
 //TODO (PARTIALLY OPTIONAL): IMPLEMENT THIS FUNCTION
