@@ -89,19 +89,26 @@ __host__ __device__ glm::vec3 calculateReflectionDirection(glm::vec3 normal, glm
 __host__ __device__ Fresnel calculateFresnel(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR) {
   	Fresnel fresnel;
 
+	incident = glm::normalize(incident);
+	normal = glm::normalize(normal);
 	float cosIncidence = abs(glm::dot(incident, normal));
-	float sinIncidence = sqrt(1-pow(cosIncidence,2));
+	float sinIncidence = sqrt(1-cosIncidence*cosIncidence);
 
 	if (transmittedIOR > 0.0 && incidentIOR > 0)
 	{
-		float commonNumerator = sqrt(1-pow(((incidentIOR/transmittedIOR)*sinIncidence),2));
+		float sinRefract = (incidentIOR/transmittedIOR)*sinIncidence;
+		float commonNumerator = sqrt(1-sinRefract*sinRefract);
 		float RsNumerator = incidentIOR*cosIncidence-transmittedIOR*commonNumerator;
 		float RsDenominator = incidentIOR*cosIncidence+transmittedIOR*commonNumerator;
-		float Rs = pow((RsNumerator/RsDenominator),2);
+		float Rs = 0;
+		if (RsDenominator != 0)
+			Rs = (RsNumerator/RsDenominator)*(RsNumerator/RsDenominator);
 
 		float RpNumerator = (incidentIOR * commonNumerator) - (transmittedIOR * cosIncidence);
 		float RpDenominator = (incidentIOR * commonNumerator) + (transmittedIOR * cosIncidence);
-		float Rp = pow((RpNumerator/RpDenominator),2);
+		float Rp = 0;
+		if (RpDenominator != 0)
+			Rp = (RpNumerator/RpDenominator)*(RpNumerator/RpDenominator);
 		
 		fresnel.reflectionCoefficient = (Rs + Rp)/2.0;
 		fresnel.transmissionCoefficient = 1 - fresnel.reflectionCoefficient;
@@ -243,27 +250,27 @@ __host__ __device__ int calculateBSDF(ray inRay, ray& outRay, glm::vec3 intersec
 			n2 = m.indexOfRefraction;
 		}
 
-		Fresnel fresnel = calculateFresnel(normal, intersect, n1, n2);
+		Fresnel fresnel = calculateFresnel(normal, inRay.direction, n1, n2);
 		
 		// Use Russian roulette to determine whether to reflect or refract based on the refractive index
-		float russianRoulette = xi1;
-		if (russianRoulette <= fresnel.reflectionCoefficient)
-		{
-			// Do reflection
-			outRay.direction = calculateReflectionDirection(normal, inRay.direction);
-			color = emittedColor;//*fresnel.reflectionCoefficient;
-			return 1;
-		}
-		else
+		float russianRoulette = xi3;
+		if (russianRoulette <= fresnel.transmissionCoefficient)
 		{
 			// Do refraction
 			bool internalReflection = false;
 			outRay.direction = calculateTransmissionDirection(normal, inRay.direction, n1, n2, internalReflection);
-			color = emittedColor;//*fresnel.transmissionCoefficient;
+			color = emittedColor*fresnel.transmissionCoefficient;
 			if (internalReflection)
 				return 1;
 			else
 				return 2;
+		}
+		else
+		{
+			// Do reflection
+			outRay.direction = calculateReflectionDirection(normal, inRay.direction);
+			color = emittedColor*fresnel.reflectionCoefficient;
+			return 1;
 		}
 	}
 	else
