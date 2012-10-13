@@ -1,4 +1,4 @@
-// CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
+﻿// CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
 // Written by Yining Karl Li, Copyright (c) 2012 University of Pennsylvania
 // This file includes code from:
 //       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
@@ -12,8 +12,11 @@
 #include "utilities.h"
 #include <thrust/random.h>
 
+using namespace glm;
+
 //Some forward declarations
 __host__ __device__ glm::vec3 getPointOnRay(ray r, float t);
+__host__ __device__ glm::vec3 getPointOnRayUnnormalized(ray r, float t);
 __host__ __device__ glm::vec3 multiplyMV(cudaMat4 m, glm::vec4 v);
 __host__ __device__ glm::vec3 getSignOfRay(ray r);
 __host__ __device__ glm::vec3 getInverseDirectionOfRay(ray r);
@@ -44,7 +47,12 @@ __host__ __device__ bool epsilonCheck(float a, float b){
 
 //Self explanatory
 __host__ __device__ glm::vec3 getPointOnRay(ray r, float t){
-  return r.origin + float(t-.0001)*glm::normalize(r.direction);
+	return r.origin + float(t)*(r.direction);
+}
+
+
+__host__ __device__ glm::vec3 getPointOnRayUnnormalized(ray r, float t){
+  return r.origin + float(t)*(r.direction);
 }
 
 //LOOK: This is a custom function for multiplying cudaMat4 4x4 matrixes with vectors. 
@@ -76,91 +84,311 @@ __host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3&
 
 //Cube intersection test, return -1 if no intersection, otherwise, distance to intersection
 __host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
-    glm::vec3 currentNormal = glm::vec3(0,0,0);
+glm::vec3 P0 = multiplyMV(box.inverseTransform, glm::vec4(r.origin, 1.0f));
 
-    ray ro = r;
+glm::vec3 V0 = multiplyMV(box.inverseTransform, glm::vec4(r.direction, 0.0f));
 
-    glm::vec3 iP0 = multiplyMV(box.inverseTransform,glm::vec4(r.origin, 1.0f));
-    glm::vec3 iP1 = multiplyMV(box.inverseTransform,glm::vec4(r.origin+r.direction, 1.0f));
-    glm::vec3 iV0 = iP1 - iP0;
+ray rt;
 
-    r.origin = iP0; 
-    r.direction = glm::normalize(iV0);
+rt.origin = P0;
 
-    float tmin, tmax, tymin, tymax, tzmin, tzmax;
+rt.direction = V0;
 
-    glm::vec3 rsign = getSignOfRay(r);
-    glm::vec3 rInverseDirection = getInverseDirectionOfRay(r);
+float xmin = -0.5, xmax = 0.5;
 
-    if((int)rsign.x==0){
-      tmin = (boxMin.x - r.origin.x) * rInverseDirection.x;
-      tmax = (boxMax.x - r.origin.x) * rInverseDirection.x;
-    }else{
-      tmin = (boxMax.x - r.origin.x) * rInverseDirection.x;
-      tmax = (boxMin.x - r.origin.x) * rInverseDirection.x;
-    }
+float ymin = -0.5, ymax = 0.5;
 
-    if((int)rsign.y==0){
-      tymin = (boxMin.y - r.origin.y) * rInverseDirection.y;
-      tymax = (boxMax.y - r.origin.y) * rInverseDirection.y;
-    }else{
-      tymin = (boxMax.y - r.origin.y) * rInverseDirection.y;
-      tymax = (boxMin.y - r.origin.y) * rInverseDirection.y;
-    }
+float zmin = -0.5, zmax = 0.5;
 
-    if ( (tmin > tymax) || (tymin > tmax) ){
-        return -1;
-    }
-    if (tymin > tmin){
-        tmin = tymin;
-    }
-    if (tymax < tmax){
-        tmax = tymax;
-    }
+float tFar = 999999; //std::numeric_limits<float>::max();
 
-    if((int)rsign.z==0){
-      tzmin = (boxMin.z - r.origin.z) * rInverseDirection.z;
-      tzmax = (boxMax.z - r.origin.z) * rInverseDirection.z;
-    }else{
-      tzmin = (boxMax.z - r.origin.z) * rInverseDirection.z;
-      tzmax = (boxMin.z - r.origin.z) * rInverseDirection.z;
-    }
+float tNear = -999999;//std::numeric_limits<float>::min();
 
-    if ( (tmin > tzmax) || (tzmin > tmax) ){
-        return -1;
-    }
-    if (tzmin > tmin){
-        tmin = tzmin;
-    }
-    if (tzmax < tmax){
-        tmax = tzmax;
-    }
-    if(tmin<0){
-        return -1;
-    }
+float t1, t2;
 
-    glm::vec3 osintersect = r.origin + tmin*r.direction;
+// For the X planes
 
-    if(abs(osintersect.x-abs(boxMax.x))<.001){
-        currentNormal = glm::vec3(1,0,0);
-    }else if(abs(osintersect.y-abs(boxMax.y))<.001){
-        currentNormal = glm::vec3(0,1,0);
-    }else if(abs(osintersect.z-abs(boxMax.z))<.001){
-        currentNormal = glm::vec3(0,0,1);
-    }else if(abs(osintersect.x+abs(boxMin.x))<.001){
-        currentNormal = glm::vec3(-1,0,0);
-    }else if(abs(osintersect.y+abs(boxMin.y))<.001){
-        currentNormal = glm::vec3(0,-1,0);
-    }else if(abs(osintersect.z+abs(boxMin.z))<.001){
-        currentNormal = glm::vec3(0,0,-1);
-    }
+if (rt.direction.x == 0)
 
-    intersectionPoint = multiplyMV(box.transform, glm::vec4(osintersect, 1.0));
+{
 
+// Ray is || to x-axis
 
+// The light point should be in between the xmin and xmax bounds. Else it doesn't intersect
 
-    normal = multiplyMV(box.transform, glm::vec4(currentNormal,0.0));
-    return glm::length(intersectionPoint-ro.origin);
+if (rt.origin.x < xmin || rt.origin.x > xmax)
+
+{
+
+return -1;
+
+}
+
+}
+
+else
+
+{
+
+// T1 = (Xl - Xo) / Xd
+
+t1 = (xmin - rt.origin.x)/rt.direction.x;
+
+// T2 = (Xh - Xo) / Xd
+
+t2 = (xmax - rt.origin.x)/rt.direction.x;
+
+// If T1 > T2 swap (T1, T2) /* since T1 intersection with near plane */
+
+if (t1 > t2)
+
+{
+
+//swap t1 and t2
+
+double temp = t1;
+
+t1 = t2;
+
+t2 = temp;
+
+}
+
+// If T1 > Tnear set Tnear =T1 /* want largest Tnear */
+
+if (t1 > tNear)
+
+tNear = t1;
+
+// If T2 < Tfar set Tfar="T2" /* want smallest Tfar */
+
+if (t2 < tFar)
+
+tFar = t2;
+
+// If Tnear > Tfar box is missed so return false
+
+if (tNear > tFar)
+
+return -1;
+
+// If Tfar < 0 box is behind ray return false end
+
+if (tFar < 0)
+
+return -1;
+
+}
+
+// For the Y planes
+
+if (rt.direction.y == 0)
+
+{
+
+// Ray is || to y-axis
+
+// The light point should be in between the ymin and ymax bounds. Else it doesn't intersect
+
+if (rt.origin.y < ymin || rt.origin.y > ymax)
+
+{
+
+return -1;
+
+}
+
+}
+
+else
+
+{
+
+// T1 = (Yl - Yo) / Yd
+
+t1 = (ymin - rt.origin.y)/rt.direction.y;
+
+// T2 = (Yh - Yo) / Yd
+
+t2 = (ymax - rt.origin.y)/rt.direction.y;
+
+// If T1 > T2 swap (T1, T2) /* since T1 intersection with near plane */
+
+if (t1 > t2)
+
+{
+
+//swap t1 and t2
+
+double temp = t1;
+
+t1 = t2;
+
+t2 = temp;
+
+}
+
+// If T1 > Tnear set Tnear =T1 /* want largest Tnear */
+
+if (t1 > tNear)
+
+tNear = t1;
+
+// If T2 < Tfar set Tfar="T2" /* want smallest Tfar */
+
+if (t2 < tFar)
+
+tFar = t2;
+
+// If Tnear > Tfar box is missed so return false
+
+if (tNear > tFar)
+
+return -1;
+
+// If Tfar < 0 box is behind ray return false end
+
+if (tFar < 0)
+
+return -1;
+
+}
+
+// For the Z planes
+
+if (rt.direction.z == 0)
+
+{
+
+// Ray is || to z-axis
+
+// The light point should be in between the zmin and zmax bounds. Else it doesn't intersect
+
+if (rt.origin.z < zmin || rt.origin.z > zmax)
+
+{
+
+return -1;
+
+}
+
+}
+
+else
+
+{
+
+// T1 = (Zl - Zo) / Zd
+
+t1 = (zmin - rt.origin.z)/rt.direction.z;
+
+// T2 = (Zh - Zo) / Zd
+
+t2 = (zmax - rt.origin.z)/rt.direction.z;
+
+// If T1 > T2 swap (T1, T2) /* since T1 intersection with near plane */
+
+if (t1 > t2)
+
+{
+
+//swap t1 and t2
+
+double temp = t1;
+
+t1 = t2;
+
+t2 = temp;
+
+}
+
+// If T1 > Tnear set Tnear =T1 /* want largest Tnear */
+
+if (t1 > tNear)
+
+tNear = t1;
+
+// If T2 < Tfar set Tfar="T2" /* want smallest Tfar */
+
+if (t2 < tFar)
+
+tFar = t2;
+
+// If Tnear > Tfar box is missed so return false
+
+if (tNear > tFar)
+
+return -1;
+
+// If Tfar < 0 box is behind ray return false end
+
+if (tFar < 0)
+
+return -1;
+
+}
+
+// Box survived all above tests, return with intersection point Tnear and exit point Tfar.
+
+double t;
+
+if (abs(tNear) < 1e-3)
+
+{
+
+if (abs(tFar) < 1e-3) // on the surface
+
+return -1;
+
+t = tFar;
+
+}
+
+else
+
+{
+
+t = tNear;
+
+}
+
+glm::vec3 p = getPointOnRayUnnormalized(rt, t);
+
+glm::vec4 surNormalTemp = glm::vec4(0.0,0.0,0.0,0.0);
+
+if (p.x <= xmin+(1e-3) && p.x >= xmin-(1e-3))
+
+surNormalTemp.x = -1;
+
+if (p.y <= ymin+(1e-3) && p.y >= ymin-(1e-3))
+
+surNormalTemp.y = -1;
+
+if (p.z <= zmin+(1e-3) && p.z >= zmin-(1e-3))
+
+surNormalTemp.z = -1;
+
+if (p.x <= xmax+(1e-3) && p.x >= xmax-(1e-3))
+
+surNormalTemp.x = 1;
+
+if (p.y <= ymax+(1e-3) && p.y >= ymax-(1e-3))
+
+surNormalTemp.y = 1;
+
+if (p.z <= zmax+(1e-3) && p.z >= zmax-(1e-3))
+
+surNormalTemp.z = 1;
+
+normal = multiplyMV(box.tranposeTranform, surNormalTemp);
+
+normal = glm::normalize(normal);
+
+intersectionPoint = getPointOnRay(r, t);
+
+//intersectionPoint = multiplyMV(box.transform, glm::vec4(getPointOnRay(rt, t), 1.0));
+
+return t;
 }
 
 //LOOK: Here's an intersection test example from a sphere. Now you just need to figure out cube and, optionally, triangle.
