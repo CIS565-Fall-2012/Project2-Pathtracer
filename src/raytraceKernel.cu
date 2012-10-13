@@ -160,7 +160,7 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 				depth = boxIntersectionTest(geoms[i], r[index], intersectionPoint, intersectionNormal);
 			}
 
-			if(depth<MAX_DEPTH && depth>-0.000000001)
+			if(depth<MAX_DEPTH && depth>-0.001)
 			{
 				MAX_DEPTH = depth;
 				curMaterial = materials[geoms[i].materialid];
@@ -170,7 +170,7 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 		//if no object is hit
 		if(MAX_DEPTH == 100000000000000000)
 		{
-			r[index].color *= glm::vec3(0,0,0);
+			r[index].color = glm::vec3(0,0,0);
 			
 			r[index].hasStopped = true;
 		}
@@ -193,8 +193,18 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 				//reflective
 				if(curMaterial.hasReflective > 0)
 				{
-					r[index].color *= curMaterial.color;
-					r[index].direction = calculateReflectionDirection(intersectionNormal, r[index].direction);
+					float russianRoulette = generateRandomNumberFromThread(resolution, time * rayDepth, x, y).x;
+					if((float)russianRoulette > 0.5)
+					{
+						r[index].color *= curMaterial.color;
+						r[index].direction = calculateReflectionDirection(intersectionNormal, r[index].direction);
+					}
+					else
+					{
+						r[index].color *= curMaterial.color;
+						r[index].direction = calculateRandomDirectionInHemisphere(intersectionNormal, generateRandomNumberFromThread(resolution, time * rayDepth, x, y).x, generateRandomNumberFromThread(resolution, time * rayDepth, x, y).y);				
+						glm::normalize(r[index].direction);
+					}
 				}
 				
 				//refractive
@@ -202,13 +212,13 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 				{
 					if(r[index].isInside == false)
 					{
-						r[index].direction = calculateTransmissionDirection(intersectionNormal, r[index].direction, 1.0f, curMaterial.indexOfRefraction);
+						r[index].direction = calculateTransmissionDirection(glm::normalize(intersectionNormal), glm::normalize(r[index].direction), 1.0f, curMaterial.indexOfRefraction);
 						glm::normalize(r[index].direction);
 						r[index].isInside = true;
 					}
 					else
 					{
-						r[index].direction = calculateTransmissionDirection(intersectionNormal, r[index].direction, curMaterial.indexOfRefraction, 1.0f);
+						r[index].direction = calculateTransmissionDirection(glm::normalize(intersectionNormal), glm::normalize(r[index].direction), curMaterial.indexOfRefraction, 1.0f);
 						glm::normalize(r[index].direction);
 						r[index].isInside = false;
 					}
@@ -223,6 +233,10 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 				}
 			}
 		} //end else (object is hit)
+
+		clamp(r[index].color.x, 0.0f, 1.0f);
+		clamp(r[index].color.y, 0.0f, 1.0f);
+		clamp(r[index].color.z, 0.0f, 1.0f);
 
 		if(r[index].hitLight == true)
 			colors[r[index].index] = ((time - 1) * colors[r[index].index] + r[index].color) / time;
@@ -259,7 +273,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	int tileSize = 8;
 	dim3 threadsPerBlock(tileSize, tileSize);
 	dim3 fullBlocksPerGrid((int)ceil(float(renderCam->resolution.x)/float(tileSize)), (int)ceil(float(renderCam->resolution.y)/float(tileSize)));
-  
+
 	//send image to GPU
 	//glm::vec3* cudaimage = NULL;
 	cudaMalloc((void**)&cudaimage, (int)renderCam->resolution.x*(int)renderCam->resolution.y*sizeof(glm::vec3));
@@ -301,18 +315,19 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 
 	raycastFromCameraKernel<<<fullBlocksPerGrid, threadsPerBlock>>>(renderCam->resolution, (float)iterations, cam.position, cam.view, cam.up, cam.fov, cudarays);
 	
-	unsigned int threadsPerBlockBounce = (int)(tileSize*tileSize);
-	unsigned int  fullBlocksBouncePerGrid = ((unsigned int)ceil(float(size)/float(threadsPerBlockBounce)));
-	
 	while(traceDepth > 0)
 	{
+		dim3 newthreadsPerBlock(tileSize, tileSize);
+		dim3 newfullBlocksPerGrid((int)ceil(float(renderCam->resolution.x)/float(tileSize)), ((int)ceil(float(size)/(int)ceil(float(renderCam->resolution.x))))/float(tileSize));
 		//kernel launches
-		raytraceRay<<<fullBlocksPerGrid, threadsPerBlock>>>(renderCam->resolution, (float)iterations, cam, traceDepth, cudaimage, cudageoms, numberOfGeoms, cudamaterials, 
+		raytraceRay<<<newfullBlocksPerGrid, newthreadsPerBlock>>>(renderCam->resolution, (float)iterations, cam, traceDepth, cudaimage, cudageoms, numberOfGeoms, cudamaterials, 
 																					numberOfMaterials, cudarays);		
 		//stream compaction
-		thrust::device_ptr<ray> start(cudarays), new_end;
-		new_end = thrust::remove_if(start, start + size, has_stopped());
+
+		thrust::device_ptr<ray> start(cudarays);//, new_end;
+		thrust::device_ptr<ray> new_end = thrust::remove_if(start, start + size, has_stopped());
 		size = new_end - start;
+
 		traceDepth--;	
 	} // end of while (traceDepth)
 	

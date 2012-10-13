@@ -41,15 +41,16 @@ __host__ __device__  bool calculateScatterAndAbsorption(ray& r, float& depth, Ab
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
 __host__ __device__ glm::vec3 calculateTransmissionDirection(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR) {
     
-	float n12 = incidentIOR / transmittedIOR;
-	glm::vec3 t;
-	float temp = 1.0f - n12*n12 * (1.0f - pow(glm::dot(normal,incident),2));
-	if(temp >= 0)
-		t = (-1.0f * n12 * glm::dot(normal,incident) - sqrt(temp)) * normal + n12 * incident;
+	float n = incidentIOR / transmittedIOR;
+	float costheta1 = glm::dot(normal, -incident);
+	//float temp = 1 - (n*n * (1 - costheta1*costheta1));
+	float costheta2 = sqrt(1 - n*n * (1 - costheta1*costheta1));
+
+	if(costheta1 > 0)
+		return(glm::normalize((n * incident) + (n*costheta1 - costheta2) * normal));
 	else
-		t = incident;
-	//	t = calculateReflectionDirection(normal, incident);
-	return t;
+		return(glm::normalize((n * incident) - (n*costheta1 - costheta2) * normal));
+
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
