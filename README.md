@@ -55,23 +55,33 @@ HOW TO MAKE IT WORK
 
 2. Tags (Using #define):
 	In main.cpp
+	------------------------------------------------
 	a. Line 10: #define FOCALDISTANCE <Float Value>
+	------------------------------------------------
 		- This #define is used to set the distance of the focal plane from the camera. (Note: Setting this makes no difference if you do not enable #define USE_DEPTH_OF_FEILD from Line 40 of rayTraceKernel.cu.
 	b. Line 12: #define Write_To_File_Frames <int value>
+	------------------------------------------------
 		- This #define define the interval between image file writes. Setting it to 0 (or commenting it) will disable image file write.
 	
 	In raytraceKernel.cu
+	------------------------------------------------
 	a. Line 33: #define MAX_DEPTH <int value>
+	------------------------------------------------
 		- This value define the Max Depth of each iteration. By default, its set at 8.
 	b. Line 36: #define StreamCompactDepth <int value>
+	------------------------------------------------
 		- This value is used to decide the depths at which stream compact will be run. For eg,if it is 3, then stream compaction will run every 3rd depth. Setting it to 0 will turn stream compaction off. By defualt, its set to 3. This is because I noted that stream compaction slows it down in reasonably closed scenes, so it is better to run it at intervals.
-	c. Line 40: #define USE_DEPTH_OF_FIELD	
+	c. Line 40: #define USE_DEPTH_OF_FIELD
+	------------------------------------------------	
 		- Comment this line to turn depth of field off. Uncomment the line to turn depth of field on. By defualt, its uncommented (depth of feild enabled).
 	d. Line 44: #define USE_ANTI_ALIASING
+	------------------------------------------------
 		- Comment this line to turn off Anti-aliasing. Uncomment the line to turn on Anti-aliasing. By defualt, its uncommented (anti-aliasing enabled).
 		
 	In interations.h
+	------------------------------------------------
 	a. Line 09: #define USE_FRESNEL_OR_SNELL
+	------------------------------------------------
 		- Comment for SNELL, Uncomment for Fresnel. By defualt, its uncommented (set to Fresnel).
 		
 3. Run it.
