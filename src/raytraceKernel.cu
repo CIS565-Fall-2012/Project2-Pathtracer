@@ -57,9 +57,9 @@ __host__ __device__ ray raycastFromCameraKernel(glm::vec2 resolution, float time
 
 
     thrust::default_random_engine rng( hashF(time * index) );
-	thrust::uniform_real_distribution<float> uniformDistribution(0.0, 1.0); // Changed to 0.0 and 1.0 so I could reuse it for aperture sampling below.
-	float jitterX = uniformDistribution(rng) - 0.5;
-	float jitterY = uniformDistribution(rng) - 0.5;
+	thrust::uniform_real_distribution<float> u01(-0.5, 0.5); 
+	float jitterX = u01(rng);
+	float jitterY = u01(rng);
 	    //standard camera raycast stuff
 	  glm::vec3 e = eye;
 	  glm::vec3 C = view;
