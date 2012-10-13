@@ -69,6 +69,47 @@ __host__ __device__ glm::vec3 getSignOfRay(ray r){
   return glm::vec3((int)(inv_direction.x < 0), (int)(inv_direction.y < 0), (int)(inv_direction.z < 0));
 }
 
+__host__ __device__  float portalIntersectionTest(staticGeom inP, staticGeom outP, ray r, glm::vec3& intersectionPoint, glm::vec3& normal, float x1 )
+{	
+	glm::vec3 ro = multiplyMV(inP.inverseTransform, glm::vec4(r.origin,1.0f));
+	glm::vec3 rd = glm::normalize(multiplyMV(inP.inverseTransform, glm::vec4(r.direction,0.0f)));
+	
+	ray rt; rt.origin = ro; rt.direction = rd;
+
+	float t = -rt.origin.z / rt.direction.z;
+
+	glm::vec3 p = rt.origin + t * rt.direction;
+
+	if( ( p.x*p.x + p.y*p.y ) > 4 || t < 0 )
+	{
+		return -1;
+	}
+
+	glm::vec2 juliaC = inP.julia;
+	glm::vec2 juliaZ = p.swizzle( glm::comp::X, glm::comp::Y ); 
+
+	int i = 0;
+
+	for( ; i < 50; i++ )
+	{
+		float real = juliaZ.x*juliaZ.x - juliaZ.y*juliaZ.y;
+		float complex = 2*juliaZ.x*juliaZ.y;
+		juliaZ = glm::vec2(real, complex) + juliaC;
+		if( glm::length( juliaZ ) > 2 ) break; 
+	}
+
+	float x2 = max( (float)(i-5)/45.0f, 0.0f );
+
+	if( x2*x2 < x1 ) return -1;
+
+	glm::vec3 realIntersectionPoint = multiplyMV(outP.transform, glm::vec4(getPointOnRay(rt, t+0.0002), 1.0));
+
+	intersectionPoint = realIntersectionPoint;
+	normal = glm::normalize( multiplyMV(outP.transform, glm::vec4(rt.direction, 0.0)) );
+
+	return glm::length(r.origin - multiplyMV(inP.transform, glm::vec4(getPointOnRay(rt, t), 1.0)));
+}
+
 //Wrapper for cube intersection test for testing against unit cubes
 __host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
 	glm::vec3 ro = multiplyMV(box.inverseTransform, glm::vec4(r.origin,1.0f));

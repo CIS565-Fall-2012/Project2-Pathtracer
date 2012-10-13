@@ -11,7 +11,7 @@
 #include <cuda_runtime.h>
 #include <string>
 
-enum GEOMTYPE{ SPHERE, CUBE, MESH };
+enum GEOMTYPE{ SPHERE, CUBE, MESH, PORTAL };
 
 struct ray {
 	glm::vec3 origin;
@@ -22,6 +22,7 @@ struct geom {
 	enum GEOMTYPE type;
 	int materialid;
 	int frames;
+	glm::vec2 julia;
 	glm::vec3* translations;
 	glm::vec3* rotations;
 	glm::vec3* scales;
@@ -32,6 +33,7 @@ struct geom {
 struct staticGeom {
 	enum GEOMTYPE type;
 	int materialid;
+	glm::vec2 julia;
 	glm::vec3 translation;
 	glm::vec3 rotation;
 	glm::vec3 scale;
@@ -78,7 +80,10 @@ struct bounce{
 	glm::vec3 incomingVector;
 	glm::vec3 normal;
 	glm::vec3 color;
+	int maxBounce;
 	int pixel;
 	int count;
+	int matid;
+	int geoid;
 };
 #endif //CUDASTRUCTS_H

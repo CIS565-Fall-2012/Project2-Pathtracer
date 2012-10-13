@@ -45,12 +45,18 @@ int scene::loadObject(string objectid){
         //load object type 
         getline(fp_in,line);
         if (!line.empty() && fp_in.good()){
+			vector<string> tokens = utilityCore::tokenizeString(line);
             if(strcmp(line.c_str(), "sphere")==0){
                 cout << "Creating new sphere..." << endl;
 				newObject.type = SPHERE;
             }else if(strcmp(line.c_str(), "cube")==0){
                 cout << "Creating new cube..." << endl;
 				newObject.type = CUBE;
+			}else if(strcmp(tokens[0].c_str(), "portal")==0)
+			{
+				cout << "Creating new portal... Julia number: " << tokens[1].c_str() << " + j" << tokens[2].c_str() << endl;
+				newObject.type = PORTAL;
+				newObject.julia = glm::vec2( atof(tokens[1].c_str()), atof(tokens[2].c_str()) );
             }else{
 				string objline = line;
                 string name;
