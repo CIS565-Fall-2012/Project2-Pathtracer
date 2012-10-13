@@ -17,7 +17,7 @@ struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
 	int pixelIndex;
-	float attenuation;
+	float survivalProbability;
 };
 
 struct light

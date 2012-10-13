@@ -6,6 +6,7 @@
 //       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
 
 #include "main.h"
+//#define MOTION_BLUR
 
 //-------------------------------
 //-------------MAIN--------------
@@ -116,6 +117,17 @@ void runCuda(){
     material* materials = new material[materialsSize];
 	light* lights = new light[lightsSize];
 
+	//MOTION BLUR
+	//Need to carefully decide which object to motion blur, else program might crash
+#ifdef MOTION_BLUR
+	renderScene->objects[7].translations[0].x += 0.0005f;
+	glm::mat4 transform = utilityCore::buildTransformationMatrix(renderScene->objects[7].translations[0], renderScene->objects[7].rotations[0],
+		renderScene->objects[7].scales[0]);
+	renderScene->objects[7].transforms[0] = utilityCore::glmMat4ToCudaMat4(transform);
+	renderScene->objects[7].inverseTransforms[0] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
+#endif
+	//MOTION BLUR
+
     
     for(unsigned int i=0; i< objectsSize; ++i){
       geoms[i] = renderScene->objects[i];
@@ -129,7 +141,7 @@ void runCuda(){
     
   
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, materialsSize, geoms, objectsSize, lights, lightsSize);
+	cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, materialsSize, geoms, objectsSize, lights, lightsSize);
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
@@ -141,23 +153,33 @@ void runCuda(){
 
       for(int x=0; x<renderCam->resolution.x; ++x){
         for(int y=0; y<renderCam->resolution.y; ++y){
-          int index = x + (y * renderCam->resolution.x);
+          int index = (renderCam->resolution.x - 1 - x) + (y * renderCam->resolution.x);
           outputImage.writePixelRGB(x,y,renderCam->image[index]);
         }
       }
+
+	  /*for(int x = renderCam->resolution.x - 1; x >= 0; --x){
+        for(int y = renderCam->resolution.y - 1; y >= 0; --y){
+          int index = x + (y * renderCam->resolution.x);
+          outputImage.writePixelRGB(x, y, renderCam->image[index]);
+        }
+      }*/
       
-      gammaSettings gamma;
+      /*gammaSettings gamma;
       gamma.applyGamma = true;
       gamma.gamma = 1.0/2.2;
       gamma.divisor = renderCam->iterations;
-      outputImage.setGammaSettings(gamma);
-      string filename = renderCam->imageName;
+      outputImage.setGammaSettings(gamma);*/
+      
+	  //string filename = renderCam->imageName;
+	  string filename = "C:\\Users\\Aparajith Sairam\\Documents\\MS CGGT\\GPU Fall 2012\\Project2-Pathtracer\\renders\\sampleScene.bmp";
+
       string s;
       stringstream out;
       out << targetFrame;
       s = out.str();
-      utilityCore::replaceString(filename, ".bmp", "."+s+".bmp");
-      utilityCore::replaceString(filename, ".png", "."+s+".png");
+      utilityCore::replaceString(filename, ".bmp", s+".bmp");
+      utilityCore::replaceString(filename, ".png", s+".png");
       outputImage.saveImageRGB(filename);
       cout << "Saved frame " << s << " to " << filename << endl;
       finishedRender = true;
@@ -207,7 +229,7 @@ void runCuda(){
 	void display(){
 		runCuda();
 
-		string title = "Aparajith GPU Raytracer | " + utilityCore::convertIntToString(iterations) + " Frames";
+		string title = "Aparajith's GPU Path Tracer | " + utilityCore::convertIntToString(iterations) + " Frames";
 		glutSetWindowTitle(title.c_str());
 
 		glBindBuffer( GL_PIXEL_UNPACK_BUFFER, pbo);
@@ -227,30 +249,32 @@ void runCuda(){
 	void keyboard(unsigned char key, int x, int y)
 	{
 		std::cout << key << std::endl;
+		glm::mat4 transform;
 		switch (key) 
 		{
 		case 'd':
-			//renderScene->renderCam.positions[0].x -= 1.0f;
 			renderCam[0].positions[0].x += 1.0f;
-			/*for(int i = 0; i <= renderCam->frames; ++i)
-			{
-				renderScene->renderCam.positions[0].x -= 1.0f;
-			}*/
+			iterations = 0;
 			break;
 		case 'a':
 			renderCam[0].positions[0].x -= 1.0f;
+			iterations = 0;
 			break;
 		case 'w':
 			renderCam[0].positions[0].z -= 1.0f;
+			iterations = 0;
 			break;
 		case 's':
 			renderCam[0].positions[0].z += 1.0f;
+			iterations = 0;
 			break;
 		case 'r':
 			renderCam[0].positions[0].y += 1.0f;
+			iterations = 0;
 			break;
 		case 'f':
 			renderCam[0].positions[0].y -= 1.0f;
+			iterations = 0;
 			break;
 		case(27):
 			exit(1);
@@ -288,7 +312,7 @@ void runCuda(){
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 		glutInitWindowSize(width, height);
-		glutCreateWindow("Aparajith GPU Raytracer");
+		glutCreateWindow("Aparajith's GPU Path Tracer");
 
 		// Init GLEW
 		glewInit();

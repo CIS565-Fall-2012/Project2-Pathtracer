@@ -38,5 +38,19 @@
     <Filter Include="stb_image">
       <UniqueIdentifier>{011aa553-95e8-4e59-b7ff-1bb89aebe21d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{a43f8314-4257-4e46-b34b-d6d20b8a620e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scenes\PathTracerScene.txt">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene.txt">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleSceneGlossy.txt">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

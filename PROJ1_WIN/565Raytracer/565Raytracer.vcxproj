@@ -36,6 +36,11 @@
   <ItemGroup>
     <CudaCompile Include="..\..\src\raytraceKernel.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scenes\PathTracerScene.txt" />
+    <None Include="..\..\scenes\sampleScene.txt" />
+    <None Include="..\..\scenes\sampleSceneGlossy.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF21CA49-522E-4E86-B508-EE515B248FC4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -120,6 +125,7 @@
     <CudaCompile>
       <CompileOut>$(ProjectDir)$(Platform)/$(Configuration)/%(Filename)%(Extension).obj</CompileOut>
       <Include>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include;C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/C/common/inc;../shared/glew/includes;../shared/freeglut/includes</Include>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

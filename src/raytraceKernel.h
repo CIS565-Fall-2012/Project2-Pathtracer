@@ -21,8 +21,8 @@ struct is_garbage_ray
 		bool operator()(const ray a)
 	{
 		//return true;
-		return false;
-		//return (a.pixelIndex == -10000);
+		//return false;
+		return (a.pixelIndex == -10000);
 		//return ((a.origin.x == -10000.0f) && (a.origin.y == -10000.0f) && (a.origin.z == -10000.0f));
 	}
 };
