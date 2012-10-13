@@ -7,7 +7,7 @@ Funtionality implemented:
 * Parallelization by ray instead of by pixel via string compaction (see the Physically-based shading and pathtracing lecture slides from 09/24 if you don't know what this refers to)
 * Perfect specular reflection
 
-Additional Features:
+Additional Features implemented:
 * Fresnel-based Refraction, i.e. glass
 * Depth of field - working on it
 
