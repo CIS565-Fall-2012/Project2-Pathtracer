@@ -1,3 +1,21 @@
+Assignment Submission
+
+Funtionality implemented:
+* Full global illumination (including soft shadows, color bleeding, etc.) by pathtracing rays through the scene. 
+* Properly accumulating emittance and colors to generate a final image
+* Supersampled antialiasing - working on it
+* Parallelization by ray instead of by pixel via string compaction (see the Physically-based shading and pathtracing lecture slides from 09/24 if you don't know what this refers to)
+* Perfect specular reflection
+
+Additional Features:
+* Fresnel-based Refraction, i.e. glass
+* Depth of field - working on it
+
+Blog: http://cudapathtacer.blogspot.com/
+
+
+
+
 -------------------------------------------------------------------------------
 CIS565: Project 2: CUDA Pathtracer
 -------------------------------------------------------------------------------
