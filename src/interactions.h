@@ -63,7 +63,7 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
     
     //crucial difference between this and calculateRandomDirectionInSphere: THIS IS COSINE WEIGHTED!
     
-    float up = sqrt(xi1); // cos(theta)
+    float up = xi1; // cos(theta)
     float over = sqrt(1 - up * up); // sin(theta)
     float around = xi2 * TWO_PI;
     
@@ -83,7 +83,6 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
     glm::vec3 perpendicularDirection2 = glm::normalize(glm::cross(normal, perpendicularDirection1)); 
     
     return ( up * normal ) + ( cos(around) * over * perpendicularDirection1 ) + ( sin(around) * over * perpendicularDirection2 );
-    
 }
 
 //TODO: IMPLEMENT THIS FUNCTION

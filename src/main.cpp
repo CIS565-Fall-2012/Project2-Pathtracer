@@ -100,6 +100,8 @@ int main(int argc, char** argv){
 //---------RUNTIME STUFF---------
 //-------------------------------
 
+int traceDepth = 2;
+
 void runCuda(){
 
   // Map OpenGL buffer object for writing from CUDA on a single GPU
@@ -123,7 +125,7 @@ void runCuda(){
     
   
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size(), traceDepth );
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
@@ -197,7 +199,7 @@ void runCuda(){
 	}
 
 #else
-
+	
 	void display(){
 		runCuda();
 
@@ -220,12 +222,78 @@ void runCuda(){
 
 	void keyboard(unsigned char key, int x, int y)
 	{
-		std::cout << key << std::endl;
+		glm::vec3 cross = glm::cross( renderCam->views[targetFrame], renderCam->ups[targetFrame] );
 		switch (key) 
 		{
-		   case(27):
-			   exit(1);
-			   break;
+			case('w'):
+				renderCam->positions[targetFrame] += renderCam->views[targetFrame];
+				iterations = 0;
+				break;
+
+			case('s'):
+				renderCam->positions[targetFrame] -= renderCam->views[targetFrame];
+				iterations = 0;
+				break;
+
+			case('q'):
+				renderCam->positions[targetFrame] += renderCam->ups[targetFrame];
+				iterations = 0;
+				break;
+
+			case('z'):
+				renderCam->positions[targetFrame] -= renderCam->ups[targetFrame];
+				iterations = 0;
+				break;
+
+			case('a'):
+				renderCam->positions[targetFrame] += cross;
+				iterations = 0;
+				break;
+				
+			case('d'):
+				renderCam->positions[targetFrame] -= cross;
+				iterations = 0;
+				break;
+
+			case('i'):
+				renderCam->views[targetFrame] += renderCam->ups[targetFrame] * 0.1f;
+				renderCam->views[targetFrame] = glm::normalize( renderCam->views[targetFrame] );
+				iterations = 0;
+				break;
+
+			case('k'):
+				renderCam->views[targetFrame] -= renderCam->ups[targetFrame] * 0.1f;
+				renderCam->views[targetFrame] = glm::normalize( renderCam->views[targetFrame] );
+				iterations = 0;
+				break;
+				
+			case('j'):
+				renderCam->views[targetFrame] += cross * 0.1f;
+				renderCam->views[targetFrame] = glm::normalize( renderCam->views[targetFrame] );
+				iterations = 0;
+				break;
+
+			case('l'):
+				renderCam->views[targetFrame] -= cross * 0.1f;
+				renderCam->views[targetFrame] = glm::normalize( renderCam->views[targetFrame] );
+				iterations = 0;
+				break;
+
+			case(']'):
+				traceDepth = ( traceDepth + 1 ) % 50;
+				iterations = 0;
+				cout << traceDepth << endl;
+				break;
+
+			case('['):
+				traceDepth = ( traceDepth + 49 ) % 50;
+				iterations = 0;
+				cout << traceDepth << endl;
+				break;
+
+			case(27):
+				exit(1);
+				break;
 		}
 	}
 

@@ -69,9 +69,98 @@ __host__ __device__ glm::vec3 getSignOfRay(ray r){
   return glm::vec3((int)(inv_direction.x < 0), (int)(inv_direction.y < 0), (int)(inv_direction.z < 0));
 }
 
+__host__ __device__  float portalIntersectionTest(staticGeom inP, staticGeom outP, ray r, glm::vec3& intersectionPoint, glm::vec3& normal, float x1 )
+{	
+	glm::vec3 ro = multiplyMV(inP.inverseTransform, glm::vec4(r.origin,1.0f));
+	glm::vec3 rd = glm::normalize(multiplyMV(inP.inverseTransform, glm::vec4(r.direction,0.0f)));
+	
+	ray rt; rt.origin = ro; rt.direction = rd;
+
+	float t = -rt.origin.z / rt.direction.z;
+
+	glm::vec3 p = rt.origin + t * rt.direction;
+
+	if( ( p.x*p.x + p.y*p.y ) > 4 || t < 0 )
+	{
+		return -1;
+	}
+
+	glm::vec2 juliaC = inP.julia;
+	glm::vec2 juliaZ = p.swizzle( glm::comp::X, glm::comp::Y ); 
+
+	int i = 0;
+
+	for( ; i < 50; i++ )
+	{
+		float real = juliaZ.x*juliaZ.x - juliaZ.y*juliaZ.y;
+		float complex = 2*juliaZ.x*juliaZ.y;
+		juliaZ = glm::vec2(real, complex) + juliaC;
+		if( glm::length( juliaZ ) > 2 ) break; 
+	}
+
+	float x2 = max( (float)(i-5)/45.0f, 0.0f );
+
+	if( x2*x2 < x1 ) return -1;
+
+	glm::vec3 realIntersectionPoint = multiplyMV(outP.transform, glm::vec4(getPointOnRay(rt, t+0.0002), 1.0));
+
+	intersectionPoint = realIntersectionPoint;
+	normal = glm::normalize( multiplyMV(outP.transform, glm::vec4(rt.direction, 0.0)) );
+
+	return glm::length(r.origin - multiplyMV(inP.transform, glm::vec4(getPointOnRay(rt, t), 1.0)));
+}
+
 //Wrapper for cube intersection test for testing against unit cubes
 __host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
-  return boxIntersectionTest(glm::vec3(-.5,-.5,-.5), glm::vec3(.5,.5,.5), box, r, intersectionPoint, normal);
+	glm::vec3 ro = multiplyMV(box.inverseTransform, glm::vec4(r.origin,1.0f));
+	glm::vec3 rd = glm::normalize(multiplyMV(box.inverseTransform, glm::vec4(r.direction,0.0f)));
+	
+	ray rt; rt.origin = ro; rt.direction = rd;
+
+	glm::vec3 tlfb = ( glm::vec3(-0.5,-0.5,-0.5) - ro ) / rd;
+	glm::vec3 trbt = ( glm::vec3(0.5,0.5,0.5) - ro ) / rd;
+	
+	glm::vec3 tmin = glm::min( tlfb, trbt );
+	glm::vec3 tmax = glm::max( tlfb, trbt );
+
+	if( tmax.x < tmin.y || tmax.x < tmin.z || tmax.y < tmin.x || 
+		tmax.y < tmin.z || tmax.z < tmin.x || tmax.z < tmin.y )
+	{
+		return -1;
+	}
+
+	float t = ( tmin.x > tmin.y ? tmin.x : tmin.y );
+	t = ( t > tmin.z ? t : tmin.z );
+	
+	if( t < 0 ) return -1;
+
+	glm::vec3 realNormal = glm::vec3( 1, 1, 1 );
+	
+	//glm::vec4 point = glm::vec4( getPointOnRay(rt, t), 1.0f );
+	glm::vec4 point = glm::vec4( rt.origin + rt.direction*t, 1.0f );
+	
+	if( fabs( point.x - 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( 1, 0, 0 );
+	else if( fabs( point.x + 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( -1, 0, 0 );
+	else if( fabs( point.y - 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( 0, 1, 0 );
+	else if( fabs( point.y + 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( 0, -1, 0 );
+	else if( fabs( point.z - 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( 0, 0, 1 );
+	else if( fabs( point.z + 0.5 ) < 2e-4 )
+		realNormal = glm::vec3( 0, 0, -1 );
+
+	point = glm::vec4( getPointOnRay(rt, t), 1.0f );
+	glm::vec3 realIntersectionPoint = multiplyMV(box.transform, point);
+	glm::vec3 realOrigin = multiplyMV(box.transform, glm::vec4(0,0,0,1));
+	
+	normal = glm::normalize(multiplyMV(box.transform, glm::vec4(realNormal,0.0f)));
+	intersectionPoint = realIntersectionPoint;   
+        
+	return glm::length(r.origin - realIntersectionPoint);
+	//return boxIntersectionTest(glm::vec3(-.5,-.5,-.5), glm::vec3(.5,.5,.5), box, r, intersectionPoint, normal);
 }
 
 //Cube intersection test, return -1 if no intersection, otherwise, distance to intersection
@@ -155,11 +244,11 @@ __host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMa
         currentNormal = glm::vec3(0,0,-1);
     }
 
-    intersectionPoint = multiplyMV(box.transform, glm::vec4(osintersect, 1.0));
+    intersectionPoint = multiplyMV(box.transform, glm::vec4(getPointOnRay(r, tmin), 1.0));
 
 
 
-    normal = multiplyMV(box.transform, glm::vec4(currentNormal,0.0));
+	normal = glm::normalize(multiplyMV(box.transform, glm::vec4(currentNormal,0.0)));
     return glm::length(intersectionPoint-ro.origin);
 }
 
