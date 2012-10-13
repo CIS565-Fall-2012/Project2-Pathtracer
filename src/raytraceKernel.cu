@@ -368,23 +368,23 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	for( int i = 0; i < traceDepth && numT > 0; i++ )
 	{
 		bounceAround<<<fullBounceBlocksPerGrid, threadsPerBounceBlock>>>((float)iterations, cam, traceDepth, cudaimage, cudageoms, numberOfGeoms, cudamaterials, numberOfMaterials, cudabounces, numThreads);
-		compress<<<fullBounceBlocksPerGrid, threadsPerBounceBlock>>>((float)iterations, traceDepth, cudaimage, cudabounces, numThreads);
-		cudaMemcpy( &numT, numThreads, sizeof( int ), cudaMemcpyDeviceToHost );
-		cudaMemcpy( Abounces, cudabounces, numT * sizeof( bounce ), cudaMemcpyDeviceToHost );
-		std::cout << numT << " " << Bbounces << " " << std::endl;
-		bounce* qbounce = thrust::copy_if( Abounces, Abounces + numT, Bbounces, is_done() );
-		numT = qbounce - Bbounces;
-		std::cout << numT << " " << Bbounces << " " << qbounce << std::endl;
-		system("pause");
-		cudaMemcpy( numThreads, &numT, sizeof( int ), cudaMemcpyHostToDevice );
-		cudaMemcpy( cudabounces, Bbounces, numT * sizeof( bounce ), cudaMemcpyHostToDevice );
+		//compress<<<fullBounceBlocksPerGrid, threadsPerBounceBlock>>>((float)iterations, traceDepth, cudaimage, cudabounces, numThreads);
+		//cudaMemcpy( &numT, numThreads, sizeof( int ), cudaMemcpyDeviceToHost );
+		//cudaMemcpy( Abounces, cudabounces, numT * sizeof( bounce ), cudaMemcpyDeviceToHost );
+		//std::cout << numT << " " << Bbounces << " " << std::endl;
+		//bounce* qbounce = thrust::copy_if( Abounces, Abounces + numT, Bbounces, is_done() );
+		//numT = qbounce - Bbounces;
+		//std::cout << numT << " " << Bbounces << " " << qbounce << std::endl;
+		//system("pause");
+		//cudaMemcpy( numThreads, &numT, sizeof( int ), cudaMemcpyHostToDevice );
+		//cudaMemcpy( cudabounces, Bbounces, numT * sizeof( bounce ), cudaMemcpyHostToDevice );
 	}
 
 	delete[] Abounces;
 	delete[] Bbounces;
 	
 	checkCUDAError("In the Loop!");
-	//compress<<<fullBounceBlocksPerGrid, threadsPerBounceBlock>>>((float)iterations, traceDepth, cudaimage, cudabounces, numThreads);
+	compress<<<fullBounceBlocksPerGrid, threadsPerBounceBlock>>>((float)iterations, traceDepth, cudaimage, cudabounces, numThreads);
 	
 	sendImageToPBO<<<fullBlocksPerGrid, threadsPerBlock>>>(PBOpos, renderCam->resolution, cudaimage, (float)iterations);
 	
