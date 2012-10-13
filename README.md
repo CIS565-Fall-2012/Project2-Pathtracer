@@ -5,7 +5,99 @@ Fall 2012
 -------------------------------------------------------------------------------
 Due Friday, 10/12/2012
 -------------------------------------------------------------------------------
+PROJECT SUBMISSION
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+The features included in my GPU-based Parallel Path Tracer are as follows:
 
+Ray Parallelization
+	Instead of working on parallelizing by pixel, I working on this project by parallelizing rays. That is, instead of assign 1 thread per pixel, I assigned 1 thread per ray. This became fruitful in the scenes where there was openness. Since most rays would be terminated early, in the later iterations I saved compute space by not having to call the rays which were dead. This was done by using stream compaction using the thrust::remove_if() function.
+
+Global Illumination
+	Parallel path tracing makes global illumination really easy. Since we are averaging a large number of iterations, global illumination by distributed random sampling becomes very easy and very efficient. All you have to take care of is the terminating conditions and you BSDF (well this can be a little tricky). My approach to BSDF was to start of simple - handle only diffuse objects, then move to reflective, refractive, glossy etc. Building up from a simple model BSDF is very crucial to understanding how it works.
+	My BDSF function handles diffuse, reflective, refractive, glossy, transparent, and translucent surfaces.
+	It produces caustics, soft shadows, color bleeding effects.
+	I have also used a very basic form of tone mapping in some of my images.
+
+Super-sampled Anti-aliasing
+	The advantage of working on a path tracer on a GPU is that you have loads of compute power at your disposal. Implementing super-sampled anti-aliasing was a piece of cake given this advantage. For each ray that you begin, just jitter it a little before you shoot the ray. Since we are going to iterating over a lot of frames, averaging the values makes it extremely good for anti-aliasing because we can get infinite number of jittered points.
+
+Depth of Field
+	Firstly, I must thank my friend classmate, Tiju Thomas, for helping understand how to implement this. 
+	For depth of field, I use a Focal Distance. All object at this focal distance from the camera are in focus whereas other objects are blurred.
+	The algorithm used is as follows:
+		->Compute the ray direction on the image plane.
+		->Compute the point on this ray at focal distance.
+		->Jitter the camera based on aperture (preferably perpendicular to the view direction).
+		->New origin of the ray is the jittered camera position.
+		->New direction of the ray is the Focal Point (from Step 2) - Jittered camera position from step 3.
+	Its amazing how such a simple mechanism can produce brilliant effects.
+	I also implemented keyboard inputs to increase or decrease the focal distance.
+
+Fresnel Refraction
+	I used Schlick's approximation to compute Fresnel coefficients. To all those who think Fresnel is hard (I used to be one of them), the best way to get around is to implement a perfect Snell Law refraction mechanism. Once this is done Fresnel is a piece of cake. 
+	Use Schlick's approximation to compute the reflection and refraction coefficients. Use a random number to choose reflection or refraction. If its reflection, do regular reflection. If its refraction then  do refraction or reflection (based on critical angle).
+
+You can find my blog at: mzshehzanayub.blogspot.com
+I'll keep updating my blog as I add more features to it. Sometime in the near future, I will definitely add a OBJ loader.
+
+I also plan to make a tutorial video that will explain all concepts I have used in my path tracer.
+-------------------------------------------------------------------------------
+HOW TO MAKE IT WORK
+-------------------------------------------------------------------------------
+1. Enter the path of the scene file as argument.
+
+2. Tags (Using #define):
+	In main.cpp
+	a. Line 10: #define FOCALDISTANCE <Float Value>
+		- This #define is used to set the distance of the focal plane from the camera. (Note: Setting this makes no difference if you do not enable #define USE_DEPTH_OF_FEILD from Line 40 of rayTraceKernel.cu.
+	b. Line 12: #define Write_To_File_Frames <int value>
+		- This #define define the interval between image file writes. Setting it to 0 (or commenting it) will disable image file write.
+	
+	In raytraceKernel.cu
+	a. Line 33: #define MAX_DEPTH <int value>
+		- This value define the Max Depth of each iteration. By default, its set at 8.
+	b. Line 36: #define StreamCompactDepth <int value>
+		- This value is used to decide the depths at which stream compact will be run. For eg,if it is 3, then stream compaction will run every 3rd depth. Setting it to 0 will turn stream compaction off. By defualt, its set to 3. This is because I noted that stream compaction slows it down in reasonably closed scenes, so it is better to run it at intervals.
+	c. Line 40: #define USE_DEPTH_OF_FIELD	
+		- Comment this line to turn depth of field off. Uncomment the line to turn depth of field on. By defualt, its uncommented (depth of feild enabled).
+	d. Line 44: #define USE_ANTI_ALIASING
+		- Comment this line to turn off Anti-aliasing. Uncomment the line to turn on Anti-aliasing. By defualt, its uncommented (anti-aliasing enabled).
+		
+	In interations.h
+	a. Line 09: #define USE_FRESNEL_OR_SNELL
+		- Comment for SNELL, Uncomment for Fresnel. By defualt, its uncommented (set to Fresnel).
+		
+3. Run it.
+
+4. User Interaction (Keyboard - case sensitive unless mentioned):
+	case 'w': move the camera +0.5 along Y-axis
+	
+	case 's': move the camera -0.5 along Y-axis
+
+	case 'd': move the camera +0.5 along X-axis
+	
+	case 'a': move the camera -0.5 along X-axis
+
+	case 'q': move the camera +0.5 along Z-axis
+
+	case 'e': move the camera -0.5 along Z-axis
+
+	case 'x': rotate about X-axis in anti-clockwise direction
+				
+	case 'X': rotate about X-axis in clockwise direction
+
+	case 'y': rotate about Y-axis in anti-clockwise direction
+				
+	case 'Y': rotate about Y-axis in clockwise direction
+			
+	case 'i': Write current image frame to file (Key is case insensitive)
+			
+	case 'j': Increase Focal Distance by 0.5.
+
+	case 'k': Decrease Focal Distance by 0.5.
+
+	case '0': Reset the camera to the original position as defined in the scene file.
+	
 -------------------------------------------------------------------------------
 NOTE:
 -------------------------------------------------------------------------------

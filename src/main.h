@@ -44,7 +44,12 @@ int targetFrame;
 int iterations;
 bool finishedRender;
 bool singleFrameMode;
-
+bool changed = false;
+//camera *OriginalCamera = new camera();
+glm::vec3 OriginalCameraPosition;
+glm::vec3 OriginalCameraView;
+//glm::vec3 FocusPoint;
+float FocalDistance;
 //-------------------------------
 //------------GL STUFF-----------
 //-------------------------------
@@ -95,6 +100,12 @@ void initCuda();
 void initTextures();
 void initVAO();
 GLuint initShader(const char *vertexShaderPath, const char *fragmentShaderPath);
+
+//-------------------------------
+//-----Write Render To File------
+//-------------------------------
+void WriteToFile();
+
 
 //-------------------------------
 //---------CLEANUP STUFF---------

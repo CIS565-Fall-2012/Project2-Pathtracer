@@ -32,11 +32,46 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="..\..\src\raytraceKernel.cu" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="stb_image">
       <UniqueIdentifier>{011aa553-95e8-4e59-b7ff-1bb89aebe21d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{4264a23b-e3ab-4947-acc4-4e29b9984c4b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\..\src\raytraceKernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scenes\sampleScene.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\README.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene2.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Junk.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene3.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene4.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Interactions_Back_Up.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene5.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene6.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\Scene.txt">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

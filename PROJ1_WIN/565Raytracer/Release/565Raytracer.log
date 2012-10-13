@@ -1,0 +1,70 @@
+﻿Build started 10/13/2012 5:06:20 AM.
+     1>Project "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\565Raytracer.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       AddCudaCompileDeps:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" /I../shared/glew/includes /I../shared/freeglut/includes /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I. /FIcuda_runtime.h /c "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" 
+       AddCudaCompilePropsDeps:
+       Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
+       CudaBuild:
+         Compiling CUDA source file ..\..\src\raytraceKernel.cu...
+         cmd.exe /C "C:\Users\Shehzan\AppData\Local\Temp\ce3c386d45e948c093c571cb58e94af1.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu"
+         
+         C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" 
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(82): warning : variable "inside" was set but never used
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(291): warning : expression has no effect
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(383): warning : right operand of "%" is zero
+         
+         tmpxft_00002370_00000000-0_raytraceKernel.cudafe1.gpu
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(291): warning : expression has no effect
+         
+         tmpxft_00002370_00000000-5_raytraceKernel.cudafe2.gpu
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\_swizzle.hpp(194): warning : missing return statement at end of non-void function "glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::operator=(const glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::Stub &)"
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(82): warning : variable "inside" was set but never used
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\gtc\matrix_transform.inl(107): warning : statement is unreachable
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(291): warning : expression has no effect
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(383): warning : right operand of "%" is zero
+         
+     1>ptxas C : /Users/Shehzan/AppData/Local/Temp/tmpxft_00002370_00000000-1_raytraceKernel.ptx, line 237; warning : Double is not supported. Demoting to float
+         tmpxft_00002370_00000000-0_raytraceKernel.cudafe1.cpp
+         tmpxft_00002370_00000000-11_raytraceKernel.ii
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\src\main.cpp
+         main.cpp
+         Note: including lib: glut32.lib
+         
+     1>..\..\src\main.cpp(126): warning C4018: '<' : signed/unsigned mismatch
+     1>..\..\src\main.cpp(136): warning C4018: '<' : signed/unsigned mismatch
+     1>..\..\src\main.cpp(139): warning C4018: '<' : signed/unsigned mismatch
+         All outputs are up-to-date.
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:../shared/glew/lib /LIBPATH:../shared/freeglut/lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\lib\Win32" cudart.lib glew32.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\565Raytracer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.lib" /MACHINE:X86 "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj"
+         Release\glslUtility.obj
+         Release\image.obj
+         Release\main.obj
+         Release\scene.obj
+         Release\stb_image.obj
+         Release\stb_image_write.obj
+         Release\utilities.obj
+         Generating code
+         Finished generating code
+         565Raytracer.vcxproj -> C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe;#1" /manifest Release\565Raytracer.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Release\565Raytracer.unsuccessfulbuild".
+         Touching "Release\565Raytracer.lastbuildstate".
+     1>Done Building Project "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:21.21
