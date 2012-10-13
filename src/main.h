@@ -38,6 +38,7 @@ using namespace std;
 //----------PATHTRACER-----------
 //-------------------------------
 
+ray* firstRays;
 scene* renderScene;
 camera* renderCam;
 int targetFrame;
@@ -78,6 +79,9 @@ void runCuda();
 #else
 	void display();
 	void keyboard(unsigned char key, int x, int y);
+	void mouse(int button, int state, int x, int y);
+	void motion(int x,int y); 
+	void deleteImage();
 #endif
 
 //-------------------------------

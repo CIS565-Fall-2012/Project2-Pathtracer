@@ -52,7 +52,7 @@ int main(int argc, char** argv){
   renderCam = &renderScene->renderCam;
   width = renderCam->resolution[0];
   height = renderCam->resolution[1];
-
+  firstRays=new ray[width*height];
   if(targetFrame>=renderCam->frames){
     cout << "Warning: Specified target frame is out of range, defaulting to frame 0." << endl;
     targetFrame = 0;
@@ -90,7 +90,8 @@ int main(int argc, char** argv){
   #else
 	  glutDisplayFunc(display);
 	  glutKeyboardFunc(keyboard);
-
+	  glutMouseFunc(mouse);
+	  glutMotionFunc(motion);
 	  glutMainLoop();
   #endif
   return 0;
@@ -105,7 +106,7 @@ void runCuda(){
   // Map OpenGL buffer object for writing from CUDA on a single GPU
   // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not use this buffer
   
-  if(iterations<renderCam->iterations){
+  if(iterations<(int)renderCam->iterations){
     uchar4 *dptr=NULL;
     iterations++;
     cudaGLMapBufferObject((void**)&dptr, pbo);
@@ -114,16 +115,16 @@ void runCuda(){
     geom* geoms = new geom[renderScene->objects.size()];
     material* materials = new material[renderScene->materials.size()];
     
-    for(int i=0; i<renderScene->objects.size(); i++){
+    for(unsigned int i=0; i<renderScene->objects.size(); i++){
       geoms[i] = renderScene->objects[i];
     }
-    for(int i=0; i<renderScene->materials.size(); i++){
+    for(unsigned int i=0; i<renderScene->materials.size(); i++){
       materials[i] = renderScene->materials[i];
     }
     
-  
+
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size(),firstRays);
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
@@ -220,12 +221,92 @@ void runCuda(){
 
 	void keyboard(unsigned char key, int x, int y)
 	{
-		std::cout << key << std::endl;
+		//std::cout << key << std::endl;
 		switch (key) 
 		{
 		   case(27):
 			   exit(1);
 			   break;
+
+		   case 'w':
+			   (renderCam->positions)->y+=1.0f;
+			   deleteImage();
+			   break;
+		   case 's':
+			   (renderCam->positions)->y-=1.0f;
+			   deleteImage();
+			   break;
+
+		   case 'a':
+			   (renderCam->positions)->x+=1.0f;
+			   deleteImage();
+			   break;
+		   case 'd':
+			   (renderCam->positions)->x-=1.0f;
+			   deleteImage();
+			   break;
+		  
+		   case 'q':
+			   (renderCam->positions)->z+=1.0f;
+			   deleteImage();
+			   break;
+		   case 'e':
+			   (renderCam->positions)->z-=1.0f;
+			   deleteImage();
+			   break;
+		}
+
+		glutPostRedisplay();
+	}
+
+	enum actions{MOVE,FOCUS,ZOME,NONE};
+	static GLint        action=NONE;
+	static int     xStart = 0.0, yStart = 0.0;
+
+	void mouse(int button, int state, int x, int y){
+	 
+		 if(state == GLUT_DOWN)
+		{
+			if(button == GLUT_LEFT_BUTTON)
+			{
+				action=MOVE;
+			}else if(button == GLUT_MIDDLE_BUTTON)
+			{
+				action=FOCUS;
+			}else if(button == GLUT_RIGHT_BUTTON)
+			{
+				action=ZOME;
+			}
+			xStart=x;
+			yStart=y;		  
+		}
+		else
+		{
+			action=NONE;
+		}
+	}
+
+	void motion(int x,int y){
+		switch(action){
+		case MOVE:
+			renderCam->positions->x-=(float)(x-xStart)*0.01f;
+			renderCam->positions->y+=(float)(y-yStart)*0.01f;
+			deleteImage();
+			break;
+		case ZOME:
+			renderCam->positions->z+=float(y-yStart)*0.01f;
+			deleteImage();
+			break;	
+		}
+		xStart=x;
+		yStart=y;
+		glutPostRedisplay();
+	}
+
+	void deleteImage(){
+		for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+		renderCam->image[i] = glm::vec3(0,0,0);
+		iterations=0;
 		}
 	}
 

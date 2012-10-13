@@ -18,6 +18,16 @@ struct ray {
 	glm::vec3 direction;
 };
 
+struct rayData{
+	ray newray;
+	glm::vec3 precolors;
+	float coeff;
+	int dirty;
+	int x;
+	int y;
+};
+
+
 struct geom {
 	enum GEOMTYPE type;
 	int materialid;
@@ -72,5 +82,7 @@ struct material{
 	float reducedScatterCoefficient;
 	float emittance;
 };
+
+
 
 #endif //CUDASTRUCTS_H
