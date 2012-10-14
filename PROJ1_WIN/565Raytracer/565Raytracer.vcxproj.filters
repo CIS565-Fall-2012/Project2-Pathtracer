@@ -73,5 +73,14 @@
     <None Include="..\..\scenes\Scene.txt">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="sceneCPPBackUp.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\MeshScene.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\StanfordBunny.txt">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -48,9 +48,11 @@ int scene::loadObject(string objectid){
 			if(strcmp(line.c_str(), "sphere")==0){
 				cout << "Creating new sphere..." << endl;
 				newObject.type = SPHERE;
+				newObject.numOfTriangles = 0;
 			}else if(strcmp(line.c_str(), "cube")==0){
 				cout << "Creating new cube..." << endl;
 				newObject.type = CUBE;
+				newObject.numOfTriangles = 0;
 			}else{
 				string objline = line;
 				string name;
@@ -62,6 +64,104 @@ int scene::loadObject(string objectid){
 					cout << "Creating new mesh..." << endl;
 					cout << "Reading mesh from " << line << "... " << endl;
 					newObject.type = MESH;
+					////////////////////////////PARSING OBJ FILE////////////////////////
+					vector<glm::vec3> Vertices;
+					vector<glm::vec3> Normals;
+					vector<vector<string>> Faces;
+					vector<vector<vector<string>>> TempFaces;
+					vector<vector<vector<int>>> FaceVector;
+					ifstream FileVar = ifstream(line);
+					if(FileVar.is_open())
+					{
+						while(FileVar.good())
+						{
+							string rline;
+							getline(FileVar, rline);
+							if(!rline.empty())
+							{
+								vector<string> strTokens = utilityCore::tokenizeString(rline);
+								if(strcmp(strTokens[0].c_str(), "v")==0)
+								{
+									if (strTokens.size() != 4)
+									{
+										std::cout << "Error in file data - (vertices)" << std::endl;
+										return -1;
+									}
+									Vertices.push_back(glm::vec3(atof(strTokens[1].c_str()), atof(strTokens[2].c_str()), atof(strTokens[3].c_str())));
+								}
+								else if(strcmp(strTokens[0].c_str(), "vn")==0)
+								{
+									if (strTokens.size() != 4)
+									{
+										std::cout << "Error in file data - (normals)" << std::endl;
+										return -1;
+									}
+									Normals.push_back(glm::vec3(atof(strTokens[1].c_str()), atof(strTokens[2].c_str()), atof(strTokens[3].c_str())));
+								}
+								else if(strcmp(strTokens[0].c_str(), "f")==0)
+								{
+									if (strTokens.size() != 4)
+									{
+										std::cout << "Error in file data - (faces)" << std::endl;
+										return -1;
+									}
+									vector<string> temp;
+									temp.push_back(strTokens[1]);
+									temp.push_back(strTokens[2]);
+									temp.push_back(strTokens[3]);
+									Faces.push_back(temp);
+								}
+							}
+						}
+						for(int i = 0; i < Faces.size(); i++)
+						{
+							for(int j = 0; j < Faces[i].size(); j++)
+							{
+								for(int k=0; k < Faces[i][j].size(); k++)
+								{
+									if(Faces[i][j].compare(k, 1, "/") == 0)
+										Faces[i][j].replace(k, 1, " ");
+								}
+							}
+						}
+						TempFaces.resize(Faces.size());
+						for(int i = 0; i < Faces.size(); i++)
+						{
+							for(int j = 0; j < Faces[i].size(); j++)
+							{
+								vector<string> tempstr = utilityCore::tokenizeString(Faces[i][j]);
+									TempFaces[i].push_back(tempstr);
+									tempstr.clear();
+							}
+						}
+
+						newObject.triangles = new TriangleStruct[TempFaces.size()];
+						int i;
+						for(i = 0; i < TempFaces.size(); i++)
+						{
+							TriangleStruct tri;
+							tri.index = i;
+							for(int j = 0; j < 3; j++)
+							{
+								tri.vertices[j] = Vertices[atoi(TempFaces[i][j][0].c_str()) - 1];
+							}
+							int index0 = atoi(TempFaces[i][0][2].c_str()) - 1;
+							int index1 = atoi(TempFaces[i][1][2].c_str()) - 1;
+							int index2 = atoi(TempFaces[i][2][2].c_str()) - 1;
+							if(Normals[index0] == Normals[index1] && Normals[index1] == Normals[index2])
+								tri.normal = glm::normalize(Normals[index0]);
+
+							newObject.triangles[i] = tri;
+						}
+						newObject.numOfTriangles = i;
+						Vertices.clear();
+						Normals.clear();
+						Faces.clear();
+						TempFaces.clear();
+						FaceVector.clear();
+						FileVar.close();
+					}
+			/////////////////////////////////Parsing Ends Here///////////////////////////////////////
 				}else{
 					cout << "ERROR: " << line << " is not a valid object type!" << endl;
 					return -1;

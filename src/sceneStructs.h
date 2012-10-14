@@ -23,6 +23,13 @@ struct ray {
 	int currentMatIndex;
 };
 
+struct TriangleStruct
+{
+	int index;
+	glm::vec3 vertices[3];
+	glm::vec3 normal;
+};
+
 struct geom {
 	enum GEOMTYPE type;
 	int materialid;
@@ -32,6 +39,8 @@ struct geom {
 	glm::vec3* scales;
 	cudaMat4* transforms;
 	cudaMat4* inverseTransforms;
+	TriangleStruct* triangles;
+	int numOfTriangles;
 };
 
 struct staticGeom {
@@ -42,6 +51,8 @@ struct staticGeom {
 	glm::vec3 scale;
 	cudaMat4 transform;
 	cudaMat4 inverseTransform;
+	TriangleStruct* triangles;
+	int numOfTriangles;
 };
 
 struct cameraData {

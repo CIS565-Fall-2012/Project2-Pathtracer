@@ -33,11 +33,11 @@
 #define MAX_DEPTH 8
 
 //This variable is used to decide the depths at which stream compact will be run. For eg,if it is 3, then stream compaction will run every 3rd depth. Setting it to 0 will turn stream compaction off.
-#define StreamCompactDepth 3
+#define StreamCompactDepth 1
 
 //Comment this line to turn depth of field off
 //Uncomment the line to turn depth of field on
-#define USE_DEPTH_OF_FIELD	
+//#define USE_DEPTH_OF_FIELD	
 
 //Comment this line to turn off Anti-aliasing
 //Uncomment the line to turn on Anti-aliasing
@@ -224,6 +224,12 @@ __host__ __device__ bool CheckRayObjectIntersection(staticGeom* geoms, int numbe
 		{
 			t = boxIntersectionTest(geoms[i], r, selectedIntersectionPoint, selectedNormal);
 		}
+		else if (geoms[i].type == MESH)
+		{
+			//printf("Check: %f \t %f \t %f \n", geoms[i].triangles[0].vertices[0].x, geoms[i].triangles[0].vertices[0].y, geoms[i].triangles[0].vertices[0].z);
+			//printf("i \t %d\n", i);
+			t = MeshIntersectionTest(geoms[i], r, selectedIntersectionPoint, selectedNormal);
+		}
 
 		if(t >= 0 && t < closestT)
 		{
@@ -326,6 +332,28 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 		newStaticGeom.scale = geoms[i].scales[frame];
 		newStaticGeom.transform = geoms[i].transforms[frame];
 		newStaticGeom.inverseTransform = geoms[i].inverseTransforms[frame];
+		newStaticGeom.numOfTriangles = geoms[i].numOfTriangles;
+		if(newStaticGeom.numOfTriangles > 0)
+		{
+			//newStaticGeom.triangles = new TriangleStruct[newStaticGeom.numOfTriangles];
+			//for(int j = 0; j < newStaticGeom.numOfTriangles; j++)
+				//newStaticGeom.triangles[j] = geoms[i].triangles[j];
+			
+			TriangleStruct* TriangleList = new TriangleStruct[newStaticGeom.numOfTriangles];
+			for(int j = 0; j < newStaticGeom.numOfTriangles; j++)
+			{
+				TriangleList[j].index = geoms[i].triangles[j].index;
+				for(int k = 0; k < 3; k++)
+					TriangleList[j].vertices[k] = geoms[i].triangles[j].vertices[k];
+				TriangleList[j].normal = geoms[i].triangles[j].normal;
+			}
+			TriangleStruct* triList = NULL;
+			cudaMalloc((void**)&triList, newStaticGeom.numOfTriangles * sizeof(TriangleStruct));
+			cudaMemcpy(triList, TriangleList, newStaticGeom.numOfTriangles * sizeof(TriangleStruct), cudaMemcpyHostToDevice);
+
+			newStaticGeom.triangles = &triList[0];
+
+		}
 		geomList[i] = newStaticGeom;
 	}
   
@@ -335,7 +363,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	staticGeom* cudageoms = NULL;
 	cudaMalloc((void**)&cudageoms, numberOfGeoms*sizeof(staticGeom));
 	cudaMemcpy( cudageoms, geomList, numberOfGeoms*sizeof(staticGeom), cudaMemcpyHostToDevice);
-  
+	
 	//package camera
 	cameraData cam;
 	cam.resolution = renderCam->resolution;

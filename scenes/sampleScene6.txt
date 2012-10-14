@@ -347,3 +347,15 @@ frame 1
 TRANS       -5 2 -5
 ROTAT       0 0 0
 SCALE       2 2 2
+
+OBJECT 16
+TestFile.obj
+material 4
+frame 0
+TRANS       -3 0 -2
+ROTAT       30 30 0
+SCALE       2 2 2
+frame 1
+TRANS       0 0 0
+ROTAT       0 0 0
+SCALE       1.5 1.5 1.5
