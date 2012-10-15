@@ -159,7 +159,7 @@ __host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMa
 
 
 
-    normal = multiplyMV(box.transform, glm::vec4(currentNormal,0.0));
+	normal = glm::normalize(multiplyMV(box.transform, glm::vec4(currentNormal,0.0)));
     return glm::length(intersectionPoint-ro.origin);
 }
 
@@ -284,5 +284,38 @@ __host__ __device__ glm::vec3 getRandomPointOnSphere(staticGeom sphere, float ra
 
   return randPoint;
 }
+
+__host__ __device__ int findClosestIntersection(const staticGeom* geoms, int numOfGeoms, const ray& r,
+                                                glm::vec3* closestIntersection, glm::vec3* closestIntersectionNormal,
+                                                float* closestDistance) {
+  // if the front closest geom is found, the index of it is returned
+  // otherwise, returns -1
+  glm::vec3 intersectionPoint, normal;
+  float intersectionDistance;
+  *closestDistance = FLT_MAX;
+  int closestGeomInd = -1;
+
+  for (int i = 0; i < numOfGeoms; i++) { // for each object
+    if (geoms[i].type == SPHERE) {
+      intersectionDistance = sphereIntersectionTest(geoms[i], r, intersectionPoint, normal);
+    } else if (geoms[i].type == CUBE) {
+      intersectionDistance = boxIntersectionTest(geoms[i], r, intersectionPoint, normal);
+    } else { // not-supported object type
+      continue;
+    }
+
+    if (intersectionDistance < EPSILON) { // object is missed
+      continue; 
+    } else if (intersectionDistance < *closestDistance) { // closer is found
+      *closestDistance = intersectionDistance;
+      *closestIntersection = intersectionPoint;
+      *closestIntersectionNormal = normal;
+      closestGeomInd = i;
+    }
+  }	
+
+  return closestGeomInd;
+}
+
 
 #endif

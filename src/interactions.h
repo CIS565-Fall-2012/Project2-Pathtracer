@@ -7,6 +7,7 @@
 #define INTERACTIONS_H
 
 #include "intersections.h"
+#include "glm/gtx/norm.hpp"
 
 struct Fresnel {
   float reflectionCoefficient;
@@ -44,9 +45,9 @@ __host__ __device__ glm::vec3 calculateTransmissionDirection(glm::vec3 normal, g
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
-__host__ __device__ glm::vec3 calculateReflectionDirection(glm::vec3 normal, glm::vec3 incident) {
+__host__ __device__ glm::vec3 calculateReflectionDirection(glm::vec3 normal, glm::vec3 incident) {//TODO: inline?
   //nothing fancy here
-  return glm::vec3(0,0,0);
+	return glm::normalize(incident - 2.0f * normal * glm::dot(normal, incident));
 }
 
 //TODO (OPTIONAL): IMPLEMENT THIS FUNCTION
@@ -90,7 +91,11 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
 //Now that you know how cosine weighted direction generation works, try implementing non-cosine (uniform) weighted random direction generation. 
 //This should be much easier than if you had to implement calculateRandomDirectionInHemisphere.
 __host__ __device__ glm::vec3 getRandomDirectionInSphere(float xi1, float xi2) {
-  return glm::vec3(0,0,0);
+	// reference: Slide 7 in http://www.cs.sjsu.edu/~teoh/teaching/previous/cs116b_sp08/lectures/lecture16_raytracing.ppt
+	float q = TWO_PI * xi1;
+	float f = acos(2.f*xi2 - 1);
+
+	return glm::normalize(glm::vec3(cos(q)*sin(f), sin(q)*sin(f), cos(f)));
 }
 
 //TODO (PARTIALLY OPTIONAL): IMPLEMENT THIS FUNCTION
@@ -101,6 +106,13 @@ __host__ __device__ int calculateBSDF(ray& r, glm::vec3 intersect, glm::vec3 nor
 
   return 1;
 };
+
+// diffuse: 0, specular reflection 1
+__host__ __device__ inline int decideDiffOrSpec(float reflectivity, float randNumber)
+{	
+	if (randNumber <= reflectivity) return 1;
+	else return 0;
+}
 
 #endif
     
