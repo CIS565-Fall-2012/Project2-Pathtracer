@@ -1,3 +1,4 @@
+
 // CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
 // Written by Yining Karl Li, Copyright (c) 2012 University of Pennsylvania
 // This file includes code from:
@@ -6,6 +7,8 @@
 //       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
 
 #include "main.h"
+#include "glm/gtx/rotate_vector.hpp"
+
 
 //-------------------------------
 //-------------MAIN--------------
@@ -90,6 +93,8 @@ int main(int argc, char** argv){
   #else
 	  glutDisplayFunc(display);
 	  glutKeyboardFunc(keyboard);
+	  glutSpecialFunc(keyboard_special);
+	  glutMouseFunc(mouse);
 
 	  glutMainLoop();
   #endif
@@ -229,6 +234,74 @@ void runCuda(){
 		}
 	}
 
+	void keyboard_special(int key, int x, int y)
+	{// callback function for glutSpecialFunc
+		switch (key)
+		{
+		case(GLUT_KEY_LEFT):
+			stopCudaAndClearStates();
+			renderCam->positions[targetFrame] -= //TODO: OpenGL texture seems to be flipped along x-axis
+				0.5f * glm::normalize(glm::cross(renderCam->ups[targetFrame], renderCam->views[targetFrame]));			
+			initCuda();
+			break;
+		case(GLUT_KEY_RIGHT):
+			stopCudaAndClearStates();
+			renderCam->positions[targetFrame] -= //TODO: OpenGL texture seems to be flipped along x-axis
+				0.5f * glm::normalize(glm::cross(renderCam->views[targetFrame], renderCam->ups[targetFrame]));			
+			initCuda();
+			break;
+		case(GLUT_KEY_UP):
+			stopCudaAndClearStates();
+			renderCam->positions[targetFrame] += 0.5f*renderCam->views[targetFrame];
+			initCuda();
+			break;
+		case(GLUT_KEY_DOWN):
+			stopCudaAndClearStates();
+			renderCam->positions[targetFrame] -= 0.5f*renderCam->views[targetFrame];
+			initCuda();
+			break;
+		}
+
+		glutPostRedisplay();
+		return;
+	}
+
+	void mouse(int button, int state, int x, int y)
+	{// callback function for mouse
+		switch (button)
+		{
+		case GLUT_LEFT_BUTTON:
+			prev_mouse_x = x;
+			prev_mouse_y = y;
+			glutMotionFunc(motion_left);
+			break;
+		}
+		glutPostRedisplay();
+		return;
+	}
+
+	void motion_left(int x, int y)
+	{// callback function for motion when left button is pressed
+		if (!(x < 0 || x > width || y < 0 || y > height)) {
+			float theta = -(x - prev_mouse_x)*TWO_PI/width; //TODO: OpenGL texture seems to be flipped along x-axis
+			float rho = (y - prev_mouse_y)*TWO_PI/height;
+
+			stopCudaAndClearStates();
+
+			renderCam->views[targetFrame] = glm::rotateY(renderCam->views[targetFrame], theta);
+			renderCam->views[targetFrame] = glm::rotateX(renderCam->views[targetFrame], rho);
+			renderCam->views[targetFrame] = glm::normalize(renderCam->views[targetFrame]);
+			
+			renderCam->ups[targetFrame] = glm::rotateY(renderCam->ups[targetFrame], theta);
+			renderCam->ups[targetFrame] = glm::rotateX(renderCam->ups[targetFrame], rho);
+			renderCam->ups[targetFrame] = glm::normalize(renderCam->ups[targetFrame]);
+
+			initCuda();
+
+			glutPostRedisplay();
+		}
+		return;
+	}
 #endif
 
 
@@ -395,4 +468,19 @@ void shut_down(int return_code){
 	glfwTerminate();
   #endif
   exit(return_code);
+}
+
+void stopCudaAndClearStates()
+{
+	cudaDeviceSynchronize();
+	cudaDeviceReset(); 
+
+	//clear image buffer
+	iterations = 0;
+	for (int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+		renderCam->image[i] = glm::vec3(0,0,0);
+	}
+	if (!singleFrameMode) {
+		targetFrame = 0;
+	}
 }

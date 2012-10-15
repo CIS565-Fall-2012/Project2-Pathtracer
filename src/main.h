@@ -78,6 +78,11 @@ void runCuda();
 #else
 	void display();
 	void keyboard(unsigned char key, int x, int y);
+	void keyboard_special(int key, int x, int y);	// callback function for glutSpecialFunc
+	void mouse(int button, int state, int x, int y); // callback function for mouse
+	void motion_left(int x, int y); // callback function for motion when left button is pressed
+	int prev_mouse_x = 0;
+	int prev_mouse_y = 0;
 #endif
 
 //-------------------------------
@@ -104,5 +109,6 @@ void cleanupCuda();
 void deletePBO(GLuint* pbo);
 void deleteTexture(GLuint* tex);
 void shut_down(int return_code);
+void stopCudaAndClearStates();
 
 #endif
