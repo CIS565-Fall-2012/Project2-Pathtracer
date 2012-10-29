@@ -82,5 +82,17 @@
     <None Include="..\..\scenes\StanfordBunny.txt">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\scenes\TeapotInCornellBox.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="rayTraceKernalBackUp.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\MeshCornellSimple.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\scenes\sampleScene7.txt">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

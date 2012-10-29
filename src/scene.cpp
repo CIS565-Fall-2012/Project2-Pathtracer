@@ -144,15 +144,14 @@ int scene::loadObject(string objectid){
 							for(int j = 0; j < 3; j++)
 							{
 								tri.vertices[j] = Vertices[atoi(TempFaces[i][j][0].c_str()) - 1];
+								
+								tri.normal[j] = Normals[atoi(TempFaces[i][j][2].c_str()) - 1];
 							}
-							int index0 = atoi(TempFaces[i][0][2].c_str()) - 1;
-							int index1 = atoi(TempFaces[i][1][2].c_str()) - 1;
-							int index2 = atoi(TempFaces[i][2][2].c_str()) - 1;
-							if(Normals[index0] == Normals[index1] && Normals[index1] == Normals[index2])
-								tri.normal = glm::normalize(Normals[index0]);
-
+							
 							newObject.triangles[i] = tri;
 						}
+						std::cout << "No. of Vertices = " << Vertices.size() << std::endl;
+						std::cout << "No. of Faces = " << TempFaces.size() << std::endl;
 						newObject.numOfTriangles = i;
 						Vertices.clear();
 						Normals.clear();
@@ -161,6 +160,7 @@ int scene::loadObject(string objectid){
 						FaceVector.clear();
 						FileVar.close();
 					}
+						
 			/////////////////////////////////Parsing Ends Here///////////////////////////////////////
 				}else{
 					cout << "ERROR: " << line << " is not a valid object type!" << endl;
@@ -225,6 +225,81 @@ int scene::loadObject(string objectid){
 		newObject.inverseTransforms[i] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
 	}
 	
+	//Calculating Bounding Sphere
+	if(newObject.type == MESH)
+	{
+		geom meshObj = newObject;
+		glm::vec3 maxBox = glm::vec3(abs(meshObj.triangles[0].vertices[0].x), abs(meshObj.triangles[0].vertices[0].y), abs(meshObj.triangles[0].vertices[0].z));
+		glm::vec3 minBox = glm::vec3(-abs(meshObj.triangles[0].vertices[0].x), -abs(meshObj.triangles[0].vertices[0].y), -abs(meshObj.triangles[0].vertices[0].z));
+		//Axis Aligned Bounding Sphere (Not scaled equally on all axis)
+		for(int i = 0; i < meshObj.numOfTriangles; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				if(meshObj.triangles[i].vertices[j].x > maxBox.x)
+					maxBox.x = meshObj.triangles[i].vertices[j].x + 0.1;
+
+				if(meshObj.triangles[i].vertices[j].y > maxBox.y)
+					maxBox.y = meshObj.triangles[i].vertices[j].y + 0.1;
+
+				if(meshObj.triangles[i].vertices[j].z > maxBox.z)
+					maxBox.z = meshObj.triangles[i].vertices[j].z + 0.1;
+
+				if(meshObj.triangles[i].vertices[j].x < minBox.x)
+					minBox.x = meshObj.triangles[i].vertices[j].x - 0.1;
+
+				if(meshObj.triangles[i].vertices[j].y < minBox.y)
+					minBox.y = meshObj.triangles[i].vertices[j].y - 0.1;
+
+				if(meshObj.triangles[i].vertices[j].z < minBox.z)
+					minBox.z = meshObj.triangles[i].vertices[j].z - 0.1;
+			}
+		}
+		staticGeom BoundingBall;
+		BoundingBall.type = SPHERE;
+		BoundingBall.rotation = glm::vec3(0.0, 0.0, 0.0);
+		meshObj.BSrotation = BoundingBall.rotation;
+		BoundingBall.translation = (maxBox + minBox) * 0.5f;
+		meshObj.BStranslation = BoundingBall.translation;
+		if(abs(maxBox.x - BoundingBall.translation.x) > abs(minBox.x - BoundingBall.translation.x))
+			BoundingBall.scale.x = 2.0 * abs(maxBox.x - BoundingBall.translation.x);
+		else
+			BoundingBall.scale.x = 2.0 * abs(minBox.x - BoundingBall.translation.x);
+
+		if(abs(maxBox.y - BoundingBall.translation.y) > abs(minBox.y - BoundingBall.translation.y))
+			BoundingBall.scale.y = 2.0 * abs(maxBox.y - BoundingBall.translation.y);
+		else
+			BoundingBall.scale.y = 2.0 * abs(minBox.y - BoundingBall.translation.y);
+
+		if(abs(maxBox.z - BoundingBall.translation.z) > abs(minBox.z - BoundingBall.translation.z))
+			BoundingBall.scale.z = 2.0 * abs(maxBox.z - BoundingBall.translation.z);
+		else
+			BoundingBall.scale.z = 2.0 * abs(minBox.z - BoundingBall.translation.z);
+
+		meshObj.BSscale = BoundingBall.scale;
+		glm::mat4 transform = utilityCore::buildTransformationMatrix(BoundingBall.translation, BoundingBall.rotation, BoundingBall.scale);
+		transform = utilityCore::cudaMat4ToGlmMat4(meshObj.transforms[0]) * transform;
+		BoundingBall.transform = utilityCore::glmMat4ToCudaMat4(transform);
+		BoundingBall.inverseTransform = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
+		meshObj.BSTransform = BoundingBall.transform;
+		meshObj.BSInverseTransform = BoundingBall.inverseTransform;
+	
+		newObject.BSrotation = meshObj.BSrotation;
+		newObject.BStranslation = meshObj.BStranslation;
+		newObject.BSscale = meshObj.BSscale;
+		newObject.BSTransform = meshObj.BSTransform;
+		newObject.BSInverseTransform = meshObj.BSInverseTransform;
+	//}
+							
+	}
+	else
+	{
+		newObject.BSrotation = glm::vec3(0,0,0);
+		newObject.BStranslation = glm::vec3(0,0,0);
+		newObject.BSscale = glm::vec3(1,1,1);
+		newObject.BSTransform = utilityCore::glmMat4ToCudaMat4(utilityCore::buildTransformationMatrix(newObject.BStranslation, newObject.BSrotation, newObject.BSscale));
+		newObject.BSInverseTransform = utilityCore::glmMat4ToCudaMat4(glm::inverse(utilityCore::cudaMat4ToGlmMat4(newObject.BSTransform)));
+	}
 		objects.push_back(newObject);
 	
 	cout << "Loaded " << frameCount << " frames for Object " << objectid << "!" << endl;

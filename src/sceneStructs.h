@@ -27,7 +27,7 @@ struct TriangleStruct
 {
 	int index;
 	glm::vec3 vertices[3];
-	glm::vec3 normal;
+	glm::vec3 normal[3];
 };
 
 struct geom {
@@ -41,6 +41,12 @@ struct geom {
 	cudaMat4* inverseTransforms;
 	TriangleStruct* triangles;
 	int numOfTriangles;
+	//For Bounding Sphere
+	cudaMat4  BSTransform;
+	cudaMat4  BSInverseTransform;
+	glm::vec3 BStranslation;
+	glm::vec3 BSrotation;
+	glm::vec3 BSscale;
 };
 
 struct staticGeom {
@@ -53,6 +59,12 @@ struct staticGeom {
 	cudaMat4 inverseTransform;
 	TriangleStruct* triangles;
 	int numOfTriangles;
+	//For Bounding Sphere
+	cudaMat4  BSTransform;
+	cudaMat4  BSInverseTransform;
+	glm::vec3 BStranslation;
+	glm::vec3 BSrotation;
+	glm::vec3 BSscale;
 };
 
 struct cameraData {
@@ -87,6 +99,14 @@ struct material{
 	glm::vec3 absorptionCoefficient;
 	float reducedScatterCoefficient;
 	float emittance;
+};
+
+struct intersectionStruct
+{
+	bool check;
+	glm::vec3 normal;
+	glm::vec3 intersectionPoint;
+	int closestIndex;
 };
 
 struct is_alive

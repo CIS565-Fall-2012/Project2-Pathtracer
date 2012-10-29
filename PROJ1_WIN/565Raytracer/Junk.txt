@@ -511,3 +511,5 @@ __host__ __device__ int calculateBSDF(ray& r, staticGeom g, int closestIndex, gl
 //	InitialRays[index].newIndex = temp;
 //}
 //
+
+

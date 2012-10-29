@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" />
+    <None Include="..\..\scenes\MeshCornellSimple.txt" />
     <None Include="..\..\scenes\MeshScene.txt" />
     <None Include="..\..\scenes\sampleScene.txt" />
     <None Include="..\..\scenes\sampleScene2.txt" />
@@ -45,10 +46,13 @@
     <None Include="..\..\scenes\sampleScene4.txt" />
     <None Include="..\..\scenes\sampleScene5.txt" />
     <None Include="..\..\scenes\sampleScene6.txt" />
+    <None Include="..\..\scenes\sampleScene7.txt" />
     <None Include="..\..\scenes\Scene.txt" />
     <None Include="..\..\scenes\StanfordBunny.txt" />
+    <None Include="..\..\scenes\TeapotInCornellBox.txt" />
     <None Include="Interactions_Back_Up.txt" />
     <None Include="Junk.txt" />
+    <None Include="rayTraceKernalBackUp.txt" />
     <None Include="sceneCPPBackUp.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

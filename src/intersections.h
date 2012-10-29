@@ -335,63 +335,6 @@ __host__ __device__ glm::vec3 getRandomPointOnSphere(staticGeom sphere, float ra
 	return PointOnSphere;
 }
 
-////Triangle Intersection Test
-//__host__ __device__ float Test_RayPolyIntersect(glm::vec3 const& P0, glm::vec3 const& V0, glm::vec3 const& p1, glm::vec3 const& p2, glm::vec3 const& p3, cudaMat4 const& T, cudaMat4 const& inverseT) 
-//{
-////	glm::mat4 T1 = glm::inverse(T);
-//	
-//	glm::vec3 V1 = multiplyMV(inverseT, glm::vec4(V0, 0.0));
-//	glm::vec3 P1 = multiplyMV(inverseT, glm::vec4(P0, 1.0));
-//	glm::vec4 Pt;
-//	float A, B, C, D;
-//	float s, s1, s2, s3;
-//	float t;
-//	
-//	A = (p1.y * (p2.z - p3.z)) + (p2.y * (p3.z - p1.z)) + (p3.y * (p1.z - p2.z));
-//	B = (p1.z * (p2.x - p3.x)) + (p2.z * (p3.x - p1.x)) + (p3.z * (p1.x - p2.x));
-//	C = (p1.x * (p2.y - p3.y)) + (p2.x * (p3.y - p1.y)) + (p3.x * (p1.y - p2.y));
-//	D = -((p1.x * (p2.y * p3.z - p3.y * p2.z)) + (p2.x * (p3.y * p1.z - p1.y * p3.z)) + (p3.x * (p1.y * p2.z - p2.y * p1.z)));
-//	// AX + BY + CZ + D = 0
-//	glm::vec4 plane = glm::vec4(A, B, C, D);
-//	glm::vec3 N = glm::vec3(A, B, C);
-//	
-//	
-//	t = -(D + A*P1.x + B*P1.y + C*P1.z) / (A*V1.x + B*V1.y + C*V1.z); 
-//	
-//	
-//	if(t < 0)
-//		return -1;
-//	else
-//	{
-//		Pt = glm::vec4(glm::vec3(P1) + t * glm::vec3(V1), 1.0);
-//
-//		s = TriangleArea(p1, p2, p3);
-//		s1 = TriangleArea(glm::vec3(Pt), p2, p3)/s;
-//		s2 = TriangleArea(glm::vec3(Pt), p3, p1)/s;
-//		s3 = TriangleArea(glm::vec3(Pt), p1, p2)/s;
-//		
-//		if( 0 <= s1 && s1 <= 1.0 && 0 <= s2 && s2 <= 1.0 && 0 <= s3 && s3 <= 1.0 && (s1 + s2 + s3 >= 1.0 - 0.0001) && (s1 + s2 + s3 <= 1.0 + 0.0001))
-//		{
-//			//glm::vec3 realIntersectionPoint = multiplyMV(T, glm::vec4(getPointOnRay(rt, t), 1.0));
-//			//glm::vec3 realOrigin = multiplyMV(sphere.transform, glm::vec4(0,0,0,1));
-//
-//			//intersectionPoint = realIntersectionPoint;
-//			//normal = glm::normalize(realIntersectionPoint - realOrigin);   
-//	
-//			////If point is inside, return the inward normal, which is the negative of the outward normal
-//			//if(inside)
-//			//	normal = glm::normalize(-normal);
-//
-//			//return glm::length(r.origin - realIntersectionPoint);
-//			return t;
-//		}
-//		else 
-//			return -1;
-//	}
-//}
-
-//Mesh intersection test, return -1 if no intersection, otherwise, distance to intersection
-//Returns intersectionPoint and normal - as return by reference and Distance to Instersection as return float
 __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
   
 	float selectedt = 10000000.0;
@@ -400,7 +343,7 @@ __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::
 	bool intersected = false;
 	rt.origin = multiplyMV(meshObj.inverseTransform, glm::vec4(r.origin, 1.0));
 	rt.direction = glm::normalize(multiplyMV(meshObj.inverseTransform, glm::vec4(r.direction, 0.0)));
-	/*
+/*	
 	glm::vec3 maxBox = glm::vec3(abs(meshObj.triangles[0].vertices[0].x), abs(meshObj.triangles[0].vertices[0].y), abs(meshObj.triangles[0].vertices[0].z));
 	glm::vec3 minBox = glm::vec3(-abs(meshObj.triangles[0].vertices[0].x), -abs(meshObj.triangles[0].vertices[0].y), -abs(meshObj.triangles[0].vertices[0].z));
 	//Axis Aligned Bounding Sphere (Not scaled equally on all axis)
@@ -432,30 +375,46 @@ __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::
 	BoundingBall.rotation = glm::vec3(0.0, 0.0, 0.0);
 	BoundingBall.translation = (maxBox + minBox) * 0.5f;
 	if(abs(maxBox.x - BoundingBall.translation.x) > abs(minBox.x - BoundingBall.translation.x))
-		BoundingBall.scale.x = abs(maxBox.x - BoundingBall.translation.x);
+		BoundingBall.scale.x = 2.0 * abs(maxBox.x - BoundingBall.translation.x);
 	else
-		BoundingBall.scale.x = abs(minBox.x - BoundingBall.translation.x);
+		BoundingBall.scale.x = 2.0 * abs(minBox.x - BoundingBall.translation.x);
 
 	if(abs(maxBox.y - BoundingBall.translation.y) > abs(minBox.y - BoundingBall.translation.y))
-		BoundingBall.scale.y = abs(maxBox.y - BoundingBall.translation.y);
+		BoundingBall.scale.y = 2.0 * abs(maxBox.y - BoundingBall.translation.y);
 	else
-		BoundingBall.scale.y = abs(minBox.y - BoundingBall.translation.y);
+		BoundingBall.scale.y = 2.0 * abs(minBox.y - BoundingBall.translation.y);
 
 	if(abs(maxBox.z - BoundingBall.translation.z) > abs(minBox.z - BoundingBall.translation.z))
-		BoundingBall.scale.z = abs(maxBox.z - BoundingBall.translation.z);
+		BoundingBall.scale.z = 2.0 * abs(maxBox.z - BoundingBall.translation.z);
 	else
-		BoundingBall.scale.z = abs(minBox.z - BoundingBall.translation.z);
+		BoundingBall.scale.z = 2.0 * abs(minBox.z - BoundingBall.translation.z);
 
 	glm::mat4 transform = utilityCore::buildTransformationMatrix(BoundingBall.translation, BoundingBall.rotation, BoundingBall.scale);
+	transform = utilityCore::cudaMat4ToGlmMat4(meshObj.transform) * transform;
 	BoundingBall.transform = utilityCore::glmMat4ToCudaMat4(transform);
 	BoundingBall.inverseTransform = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
-
+	*/
+	staticGeom BoundingBall;
+	//BoundingBall.type = SPHERE;
+	BoundingBall.type = CUBE;
+	BoundingBall.rotation = meshObj.BSrotation;
+	BoundingBall.translation = meshObj.BStranslation;
+	BoundingBall.scale = meshObj.BSscale;
+	BoundingBall.transform = meshObj.BSTransform;
+	BoundingBall.inverseTransform = meshObj.BSInverseTransform;
 	glm::vec3 tempIP(0,0,0);
 	glm::vec3 tempNormal(0.0, 0.0, 0.0);
-	selectedt = sphereIntersectionTest(BoundingBall, r, tempIP, tempNormal);
-	if(selectedt == -1)
+	float tempT = boxIntersectionTest(BoundingBall, r, tempIP, tempNormal);
+	if(tempT == -1)
+	{
+		//printf("Bounding Ball not intersected\n");
 		return -1;
-	*/
+	}
+	else
+	{
+		//printf("Bounding Ball intersected\n");
+	}
+	
 	for(int i = 0; i < meshObj.numOfTriangles; i++)
 	{
 		float t = -1;
@@ -511,7 +470,27 @@ __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::
 	glm::vec3 realIntersectionPoint = glm::vec3(multiplyMV(meshObj.transform, glm::vec4(getPointOnRay(rt, selectedt), 1.0)));
 
 	intersectionPoint = realIntersectionPoint;
-	normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(meshObj.triangles[triangleIndex].normal), 0.0)));   
+
+	//Interpolating Normals
+	/*glm::vec3 PointOnTriangle =  getPointOnRay(rt, selectedt);
+	float d1 = glm::length(PointOnTriangle - meshObj.triangles[triangleIndex].vertices[0]);
+	float d2 = glm::length(PointOnTriangle - meshObj.triangles[triangleIndex].vertices[1]);
+	float d3 = glm::length(PointOnTriangle - meshObj.triangles[triangleIndex].vertices[2]);
+
+	float D1 = d1 / (d1 + d2 + d3);
+	float D2 = d2 / (d1 + d2 + d3);
+	float D3 = d3 / (d1 + d2 + d3);
+	
+	float D1 = 2.0/3.0f;
+	float D2 = 2.0/3.0f;
+	float D3 = 2.0/3.0f;
+	glm::vec3 NormalAtP = (1-D1) * meshObj.triangles[triangleIndex].normal[0]
+							+ (1-D2) * meshObj.triangles[triangleIndex].normal[1]
+							+ (1-D3) * meshObj.triangles[triangleIndex].normal[2];
+							*/
+	//normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(NormalAtP), 0.0)));   
+	
+	normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(meshObj.triangles[triangleIndex].normal[2]), 0.0)));   
 	
 	if(glm::dot(normal, -r.direction) < 0)
 		normal = glm::normalize(-normal);

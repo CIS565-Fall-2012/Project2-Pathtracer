@@ -30,10 +30,10 @@
 #include <thrust/device_new_allocator.h>
 
 //Define Max Depth Here
-#define MAX_DEPTH 8
+#define MAX_DEPTH 12
 
 //This variable is used to decide the depths at which stream compact will be run. For eg,if it is 3, then stream compaction will run every 3rd depth. Setting it to 0 will turn stream compaction off.
-#define StreamCompactDepth 1
+#define StreamCompactDepth 3
 
 //Comment this line to turn depth of field off
 //Uncomment the line to turn depth of field on
@@ -199,7 +199,7 @@ __global__ void AccumalateColor(glm::vec2 resolution, glm::vec3* colors, glm::ve
 	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
 	int index = x + (y * resolution.x);
-	float toneMap = 1.0f / 1.2f;
+	float toneMap = 1.0f / 2.2f;
 	colors[index] = glm::vec3(pow(colors[index].x, toneMap), pow(colors[index].y, toneMap), pow(colors[index].z, toneMap)); 
 	colors[index] = (cameraImage[index] * (iterations - 1.0f) + colors[index]) / (float)iterations;
 	
@@ -226,8 +226,6 @@ __host__ __device__ bool CheckRayObjectIntersection(staticGeom* geoms, int numbe
 		}
 		else if (geoms[i].type == MESH)
 		{
-			//printf("Check: %f \t %f \t %f \n", geoms[i].triangles[0].vertices[0].x, geoms[i].triangles[0].vertices[0].y, geoms[i].triangles[0].vertices[0].z);
-			//printf("i \t %d\n", i);
 			t = MeshIntersectionTest(geoms[i], r, selectedIntersectionPoint, selectedNormal);
 		}
 
@@ -246,8 +244,68 @@ __host__ __device__ bool CheckRayObjectIntersection(staticGeom* geoms, int numbe
 
 //TODO: IMPLEMENT THIS FUNCTION
 //Core raytracer kernel
-__global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, int rayDepth, glm::vec3* colors, 
-	staticGeom* geoms, int numberOfGeoms, material* cudaMaterials, int numberOfMaterials, ray* InitialRays, int numOfRays)
+//__global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, int rayDepth, glm::vec3* colors, 
+//	staticGeom* geoms, int numberOfGeoms, material* cudaMaterials, int numberOfMaterials, ray* InitialRays, int numOfRays)
+//{
+//	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
+//	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
+//	int index = x + (y * resolution.x);
+//	int BounceType = -1;
+//	glm::vec3 FinalColor(0.0f, 0.0f, 0.0f);
+//	
+//	if(InitialRays[index].keep == 1 && index < numOfRays)
+//	{
+//		ray r = InitialRays[index];
+//		glm::vec3 intersectionPoint(0.0f, 0.0f, 0.0f);
+//		glm::vec3 normal(0.0f, 0.0f, 0.0f);
+//		int closestIndex = -1;
+//		
+//		bool check = CheckRayObjectIntersection(geoms, numberOfGeoms, r, intersectionPoint, normal, closestIndex);
+//
+//		glm::vec3 emittedColor;
+//		glm::vec3 unabsorbedColor;
+//		AbsorptionAndScatteringProperties AASP;
+//		r.keep = 0;
+//		material CM; 
+//		if(check && cudaMaterials[geoms[closestIndex].materialid].emittance > 0.005f) //If object is light then return light color.
+//		{
+//			CM = cudaMaterials[geoms[closestIndex].materialid]; //Storing the Material of the selected object
+//			FinalColor = CM.color * CM.emittance;
+//			r.keep = 0;
+//			BounceType = 0;
+//		}
+//		else if(check) //Do calculation for color
+//		{
+//			CM = cudaMaterials[geoms[closestIndex].materialid]; //Storing the Material of the selected object
+//			
+//			thrust::default_random_engine rng(hash(index*time*rayDepth));
+//			thrust::uniform_real_distribution<float> X1(0, 1);
+//			float u = X1(rng);
+//			float v = X1(rng);
+//			float w = X1(rng);
+//			thrust::uniform_real_distribution<float> X2(0, 5999999);
+//			int t = X2(rng);
+//
+//			BounceType = calculateBSDF(r, geoms[closestIndex], closestIndex, intersectionPoint, normal, emittedColor, AASP, FinalColor, unabsorbedColor, CM, cudaMaterials, u, v, w, t);
+//		}
+//		if(BounceType == 0 || check == false)
+//			colors[r.pixelIndex] *= FinalColor;
+//		InitialRays[index] = r;
+//
+//		if(rayDepth + 1 > MAX_DEPTH && InitialRays[index].keep == 1)
+//		{
+//			colors[r.pixelIndex] = glm::vec3(0.0f, 0.0f, 0.0f);
+//			InitialRays[index].keep == 0;
+//		}
+//	}
+//	//__syncthreads();
+//}
+
+
+
+
+//Dividing the rayTraceRay into Object Intersection and BSDF. This is to make it modular
+__global__ void raytraceRayObjectIntersection(glm::vec2 resolution, float time, int rayDepth, staticGeom* geoms, int numberOfGeoms, ray* InitialRays, int numOfRays, intersectionStruct* intersectArray)
 {
 	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
@@ -263,6 +321,73 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 		int closestIndex = -1;
 		
 		bool check = CheckRayObjectIntersection(geoms, numberOfGeoms, r, intersectionPoint, normal, closestIndex);
+		intersectArray[r.pixelIndex].check = check;
+		intersectArray[r.pixelIndex].normal = normal;
+		intersectArray[r.pixelIndex].intersectionPoint = intersectionPoint;
+		intersectArray[r.pixelIndex].closestIndex = closestIndex;
+
+		/*glm::vec3 emittedColor;
+		glm::vec3 unabsorbedColor;
+		AbsorptionAndScatteringProperties AASP;
+		r.keep = 0;
+		material CM; 
+		if(check && cudaMaterials[geoms[closestIndex].materialid].emittance > 0.005f) //If object is light then return light color.
+		{
+			CM = cudaMaterials[geoms[closestIndex].materialid]; //Storing the Material of the selected object
+			FinalColor = CM.color * CM.emittance;
+			r.keep = 0;
+			BounceType = 0;
+		}
+		else if(check) //Do calculation for color
+		{
+			CM = cudaMaterials[geoms[closestIndex].materialid]; //Storing the Material of the selected object
+			
+			thrust::default_random_engine rng(hash(index*time*rayDepth));
+			thrust::uniform_real_distribution<float> X1(0, 1);
+			float u = X1(rng);
+			float v = X1(rng);
+			float w = X1(rng);
+			thrust::uniform_real_distribution<float> X2(0, 5999999);
+			int t = X2(rng);
+
+			BounceType = calculateBSDF(r, geoms[closestIndex], closestIndex, intersectionPoint, normal, emittedColor, AASP, FinalColor, unabsorbedColor, CM, cudaMaterials, u, v, w, t);
+		}
+		if(BounceType == 0 || check == false)
+			colors[r.pixelIndex] *= FinalColor;
+		InitialRays[index] = r;
+
+		if(rayDepth + 1 > MAX_DEPTH && InitialRays[index].keep == 1)
+		{
+			colors[r.pixelIndex] = glm::vec3(0.0f, 0.0f, 0.0f);
+			InitialRays[index].keep == 0;
+		}*/
+	}
+	//__syncthreads();
+}
+
+__global__ void raytraceRayBSDF(glm::vec2 resolution, float time, int rayDepth, glm::vec3* colors, 
+	staticGeom* geoms, int numberOfGeoms, material* cudaMaterials, int numberOfMaterials, ray* InitialRays, int numOfRays, intersectionStruct* intersectArray)
+{
+	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
+	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
+	int index = x + (y * resolution.x);
+	int BounceType = -1;
+	glm::vec3 FinalColor(0.0f, 0.0f, 0.0f);
+	
+	if(InitialRays[index].keep == 1 && index < numOfRays)
+	{
+		/*ray r = InitialRays[index];
+		glm::vec3 intersectionPoint(0.0f, 0.0f, 0.0f);
+		glm::vec3 normal(0.0f, 0.0f, 0.0f);
+		int closestIndex = -1;
+		
+		bool check = CheckRayObjectIntersection(geoms, numberOfGeoms, r, intersectionPoint, normal, closestIndex);*/
+
+		ray r = InitialRays[index];
+		glm::vec3 intersectionPoint = intersectArray[r.pixelIndex].intersectionPoint;
+		glm::vec3 normal = intersectArray[r.pixelIndex].normal;
+		bool check = intersectArray[r.pixelIndex].check;
+		int closestIndex = intersectArray[r.pixelIndex].closestIndex;
 
 		glm::vec3 emittedColor;
 		glm::vec3 unabsorbedColor;
@@ -300,7 +425,9 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
 			InitialRays[index].keep == 0;
 		}
 	}
+	//__syncthreads();
 }
+
 
 //TODO: FINISH THIS FUNCTION - Worked on this - Added Materials Data Pasing - ZM
 //All Structures used are in sceneStructs.h
@@ -315,7 +442,16 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	dim3 threadsPerBlock(tileSize, tileSize);
 	dim3 fullBlocksPerGrid((int)ceil(float(renderCam->resolution.x)/float(tileSize)), (int)ceil(float(renderCam->resolution.y)/float(tileSize)));
 	
-
+	//////////////////////////////////Temporary Motion Blur Code///////////////////////////////////////////////////
+	if(iterations < 3000)
+	{
+		geoms[15].translations[frame] += glm::vec3(3.0f/3000.0f, 0.0, 0.0);
+		glm::mat4 transformMat = utilityCore::buildTransformationMatrix(geoms[15].translations[frame], 
+												geoms[15].rotations[frame], geoms[15].scales[frame]);
+		geoms[15].transforms[frame] = utilityCore::glmMat4ToCudaMat4(transformMat);
+		geoms[15].inverseTransforms[frame] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transformMat));
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//send image to GPU
 	glm::vec3* cudaimage = NULL;
 	cudaMalloc((void**)&cudaimage, (int)renderCam->resolution.x*(int)renderCam->resolution.y*sizeof(glm::vec3));
@@ -333,6 +469,12 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 		newStaticGeom.transform = geoms[i].transforms[frame];
 		newStaticGeom.inverseTransform = geoms[i].inverseTransforms[frame];
 		newStaticGeom.numOfTriangles = geoms[i].numOfTriangles;
+		
+		newStaticGeom.BSTransform = geoms[i].BSTransform;
+		newStaticGeom.BSInverseTransform = geoms[i].BSInverseTransform;
+		newStaticGeom.BStranslation = geoms[i].BStranslation;
+		newStaticGeom.BSrotation = geoms[i].BSrotation;
+		newStaticGeom.BSscale = geoms[i].BSscale;
 		if(newStaticGeom.numOfTriangles > 0)
 		{
 			//newStaticGeom.triangles = new TriangleStruct[newStaticGeom.numOfTriangles];
@@ -344,8 +486,10 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 			{
 				TriangleList[j].index = geoms[i].triangles[j].index;
 				for(int k = 0; k < 3; k++)
+				{
 					TriangleList[j].vertices[k] = geoms[i].triangles[j].vertices[k];
-				TriangleList[j].normal = geoms[i].triangles[j].normal;
+					TriangleList[j].normal[k] = geoms[i].triangles[j].normal[k];
+				}
 			}
 			TriangleStruct* triList = NULL;
 			cudaMalloc((void**)&triList, newStaticGeom.numOfTriangles * sizeof(TriangleStruct));
@@ -386,11 +530,14 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	material* cudaMaterials = NULL;
 	cudaMalloc((void**)&cudaMaterials, numberOfMaterials*sizeof(material));
 	cudaMemcpy( cudaMaterials, materials, numberOfMaterials*sizeof(material), cudaMemcpyHostToDevice);
-  
+
 	int numOfRays = (renderCam->resolution.x * renderCam->resolution.y);
 	ray* InitialRays = NULL;
 	cudaMalloc((void**)&InitialRays,  numOfRays * sizeof(ray));
 	
+	intersectionStruct* intersectArray = NULL;
+	cudaMalloc((void**)&intersectArray, numOfRays*sizeof(intersectionStruct));
+
 	///////////////////////////////////////////////
 	clearImage<<<fullBlocksPerGrid, threadsPerBlock>>>(renderCam->resolution, cudaimage);
 	//kernel launches
@@ -405,8 +552,12 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	while(traceDepth <= MAX_DEPTH && numOfRays > 0)
 	{
 		//do Ray tracing
-		raytraceRay<<<fullBlocksPerGridSC, threadsPerBlock>>>(Reso, (float)iterations, cam, traceDepth,	cudaimage, cudageoms, numberOfGeoms, cudaMaterials, numberOfMaterials, InitialRays, numOfRays);
+		//raytraceRay<<<fullBlocksPerGridSC, threadsPerBlock>>>(Reso, (float)iterations, cam, traceDepth,	cudaimage, cudageoms, numberOfGeoms, cudaMaterials, numberOfMaterials, InitialRays, numOfRays);
 		
+		raytraceRayObjectIntersection<<<fullBlocksPerGridSC, threadsPerBlock>>>(Reso, (float)iterations, traceDepth, cudageoms, numberOfGeoms, InitialRays, numOfRays, intersectArray);
+
+		raytraceRayBSDF<<<fullBlocksPerGridSC, threadsPerBlock>>>(Reso, (float)iterations, traceDepth,cudaimage, cudageoms, numberOfGeoms, cudaMaterials, numberOfMaterials, InitialRays, numOfRays, intersectArray);
+
 		traceDepth++;
 
 		if(StreamCompactDepth > 0)
@@ -419,6 +570,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 				numOfRays = LastPtr.get() - InitRays.get();
 				Reso.y = ceil(numOfRays / Reso.x); 
 				fullBlocksPerGridSC = dim3((int)ceil(float(Reso.x)/float(tileSize)), (int)ceil(float(Reso.y)/float(tileSize)));
+				
 			}
 		}
 	}
@@ -442,6 +594,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	cudaFree( InitialRays );
 	cudaFree( InitCamVecs );
 	cudaFree( camImage );
+	cudaFree ( intersectArray );
 	delete [] geomList;
 	delete [] InitVecs;
 	//delete renderCam->image;
