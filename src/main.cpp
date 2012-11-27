@@ -7,7 +7,7 @@
 
 #include "main.h"
 //Define Focal Distance Here
-#define FOCALDISTANCE 10.0f
+#define FOCALDISTANCE 8.0f
 //This number defines the interval of frames between image file writes. For example, 100 means every 100 iterations there will be a file write.
 #define WriteToFileFrames 100
 
@@ -414,6 +414,14 @@ void runCuda(){
 				renderCam->positions[0] = OriginalCameraPosition;
 				renderCam->views[0] = OriginalCameraView;
 				changed = true;
+				break;
+
+			case 'p':
+				std::cout << "Paused - Press 1 and then hit Enter To Continue...." << std::endl;
+				int c;
+				std::cin >> c;
+				if(c < 0)
+					exit(1);
 				break;
 		}
 	}

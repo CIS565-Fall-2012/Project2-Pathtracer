@@ -12,6 +12,12 @@
     <ClCompile Include="..\..\src\stb_image\stb_image_write.c">
       <Filter>stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\obj.cpp">
+      <Filter>OBJ Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\objloader.cpp">
+      <Filter>OBJ Loader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\cudaMat4.h" />
@@ -30,6 +36,12 @@
     <ClInclude Include="..\..\src\stb_image\stb_image.h">
       <Filter>stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\obj.h">
+      <Filter>OBJ Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\objloader.h">
+      <Filter>OBJ Loader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="stb_image">
@@ -37,6 +49,9 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{4264a23b-e3ab-4947-acc4-4e29b9984c4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OBJ Loader">
+      <UniqueIdentifier>{a701b79d-9abf-4e45-8070-302c89e05e77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

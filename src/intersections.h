@@ -490,10 +490,18 @@ __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::
 							*/
 	//normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(NormalAtP), 0.0)));   
 	
-	normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(meshObj.triangles[triangleIndex].normal[2]), 0.0)));   
-	
-	if(glm::dot(normal, -r.direction) < 0)
+	//normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(glm::normalize(meshObj.triangles[triangleIndex].normal[2]), 0.0)));   
+	normal = glm::normalize(glm::cross(
+		glm::normalize(meshObj.triangles[triangleIndex].vertices[2] - meshObj.triangles[triangleIndex].vertices[1]),
+				glm::normalize(meshObj.triangles[triangleIndex].vertices[0] - meshObj.triangles[triangleIndex].vertices[1])));
+	normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(normal, 0.0)));
+
+	if(glm::dot(normal, glm::normalize(-r.direction)) < 0.0f)
+	{
 		normal = glm::normalize(-normal);
+		//if(meshObj.triangles[triangleIndex].vertices[0].x < -2.5 && meshObj.triangles[triangleIndex].vertices[0].z > 0)
+			//printf("Normal Inverted == %d\t%f\n", triangleIndex, meshObj.triangles[triangleIndex].vertices[0].x);
+	}
 
 	return glm::length(r.origin - realIntersectionPoint);
 }

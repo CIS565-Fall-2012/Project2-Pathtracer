@@ -30,10 +30,10 @@
 #include <thrust/device_new_allocator.h>
 
 //Define Max Depth Here
-#define MAX_DEPTH 12
+#define MAX_DEPTH 6
 
 //This variable is used to decide the depths at which stream compact will be run. For eg,if it is 3, then stream compaction will run every 3rd depth. Setting it to 0 will turn stream compaction off.
-#define StreamCompactDepth 3
+#define StreamCompactDepth 0
 
 //Comment this line to turn depth of field off
 //Uncomment the line to turn depth of field on
@@ -42,6 +42,10 @@
 //Comment this line to turn off Anti-aliasing
 //Uncomment the line to turn on Anti-aliasing
 #define USE_ANTI_ALIASING
+
+//Comment this line to turn off Anti-aliasing
+//Uncomment the line to turn on Anti-aliasing
+//#define USE_MOTION_BLUR
 
 void checkCUDAError(const char *msg) {
   cudaError_t err = cudaGetLastError();
@@ -122,7 +126,7 @@ __global__ void GetRayCastFromCameraKernel(cameraData cam, glm::vec3* InitCamVec
 
 	//jitter camera in X and Y
 	/////SET RANGE OF CAMERA JITTER HERE////
-	thrust::uniform_real_distribution<float> X1(-0.5, 0.5);
+	thrust::uniform_real_distribution<float> X1(-0.1, 0.1);
 	float Xj = X1(rng);
 	float Yj = X1(rng);
 
@@ -199,7 +203,7 @@ __global__ void AccumalateColor(glm::vec2 resolution, glm::vec3* colors, glm::ve
 	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int y = (blockIdx.y * blockDim.y) + threadIdx.y;
 	int index = x + (y * resolution.x);
-	float toneMap = 1.0f / 2.2f;
+	float toneMap = 1.0f / 1.25f;
 	colors[index] = glm::vec3(pow(colors[index].x, toneMap), pow(colors[index].y, toneMap), pow(colors[index].z, toneMap)); 
 	colors[index] = (cameraImage[index] * (iterations - 1.0f) + colors[index]) / (float)iterations;
 	
@@ -417,6 +421,7 @@ __global__ void raytraceRayBSDF(glm::vec2 resolution, float time, int rayDepth, 
 		}
 		if(BounceType == 0 || check == false)
 			colors[r.pixelIndex] *= FinalColor;
+
 		InitialRays[index] = r;
 
 		if(rayDepth + 1 > MAX_DEPTH && InitialRays[index].keep == 1)
@@ -442,6 +447,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 	dim3 threadsPerBlock(tileSize, tileSize);
 	dim3 fullBlocksPerGrid((int)ceil(float(renderCam->resolution.x)/float(tileSize)), (int)ceil(float(renderCam->resolution.y)/float(tileSize)));
 	
+#ifdef USE_MOTION_BLUR
 	//////////////////////////////////Temporary Motion Blur Code///////////////////////////////////////////////////
 	if(iterations < 3000)
 	{
@@ -452,6 +458,7 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, int iteratio
 		geoms[15].inverseTransforms[frame] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transformMat));
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif
 	//send image to GPU
 	glm::vec3* cudaimage = NULL;
 	cudaMalloc((void**)&cudaimage, (int)renderCam->resolution.x*(int)renderCam->resolution.y*sizeof(glm::vec3));
