@@ -352,9 +352,21 @@ OBJECT 15
 sphere
 material 10 
 frame 0
-TRANS       -5 1.5 3
+TRANS       -5 1.5 -5
 ROTAT       0 0 0
 SCALE       2.5 2.5 2.5
+frame 1
+TRANS       -5 2 -5
+ROTAT       0 0 0
+SCALE       2 2 2
+
+OBJECT 16
+Unit_Pyramid_4Sides.obj
+material 5 
+frame 0
+TRANS       -5 1.5 3
+ROTAT       180 0 0
+SCALE       2.5 2 2.5
 frame 1
 TRANS       -5 2 -5
 ROTAT       0 0 0

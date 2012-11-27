@@ -60,6 +60,31 @@ __host__ __device__ glm::vec3 multiplyMV(cudaMat4 m, glm::vec4 v){
   return r;
 }
 
+__host__ __device__ cudaMat4 transposeMat4(cudaMat4 m){
+	cudaMat4 result;
+	result.x.x = m.x.x;
+	result.x.y = m.y.x;
+	result.x.z = m.z.x;
+	result.x.w = m.w.x;
+
+	result.y.x = m.x.y;
+	result.y.y = m.y.y;
+	result.y.z = m.z.y;
+	result.y.w = m.w.y;
+
+	result.z.x = m.x.z;
+	result.z.y = m.y.z;
+	result.z.z = m.z.z;
+	result.z.w = m.w.z;
+
+	result.w.x = m.x.w;
+	result.w.y = m.y.w;
+	result.w.z = m.z.w;
+	result.w.w = m.w.w;
+	return result;
+}
+
+
 //Gets 1/direction for a ray
 __host__ __device__ glm::vec3 getInverseDirectionOfRay(ray r){
   return glm::vec3(1.0/r.direction.x, 1.0/r.direction.y, 1.0/r.direction.z);
@@ -201,7 +226,7 @@ __host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3&
 	else if(P.z >= -0.5 - 0.005 && P.z <= -0.5 + 0.005)
 		normal = glm::vec3(0.0f, 0.0f, -1.0f);
 
-	normal = glm::normalize(multiplyMV(box.transform, glm::vec4(normal, 0.0f)));
+	normal = glm::normalize(multiplyMV(transposeMat4(box.inverseTransform), glm::vec4(normal, 0.0f)));
 	
 	//The way I handle the case of point inside the cube gives the correct internal normal
 	//if(inside)
@@ -494,7 +519,8 @@ __host__ __device__  float MeshIntersectionTest(staticGeom meshObj, ray r, glm::
 	normal = glm::normalize(glm::cross(
 		glm::normalize(meshObj.triangles[triangleIndex].vertices[2] - meshObj.triangles[triangleIndex].vertices[1]),
 				glm::normalize(meshObj.triangles[triangleIndex].vertices[0] - meshObj.triangles[triangleIndex].vertices[1])));
-	normal = glm::normalize(multiplyMV(meshObj.transform, glm::vec4(normal, 0.0)));
+	
+	normal = glm::normalize(multiplyMV(transposeMat4(meshObj.inverseTransform), glm::vec4(normal, 0.0)));
 
 	if(glm::dot(normal, glm::normalize(-r.direction)) < 0.0f)
 	{

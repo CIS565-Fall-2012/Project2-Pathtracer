@@ -54,6 +54,7 @@
     <None Include="..\..\scenes\Scene.txt" />
     <None Include="..\..\scenes\StanfordBunny.txt" />
     <None Include="..\..\scenes\TeapotInCornellBox.txt" />
+    <None Include="..\..\scenes\UtahTeapot.txt" />
     <None Include="Interactions_Back_Up.txt" />
     <None Include="Junk.txt" />
     <None Include="rayTraceKernalBackUp.txt" />

@@ -1,58 +1,77 @@
-﻿Build started 11/28/2012 4:13:41 AM.
+﻿Build started 11/28/2012 4:52:18 AM.
      1>Project "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\565Raytracer.unsuccessfulbuild" because "AlwaysCreate" was specified.
        AddCudaCompileDeps:
        Skipping target "AddCudaCompileDeps" because all output files are up-to-date with respect to the input files.
        AddCudaCompilePropsDeps:
-       Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
+         Found "CudaToolkitCustomDir".
+         Found "AdditionalDeps".
+         Found "CompileOut".
+         Found "Include".
+         Found "Keep".
+         Found "KeepDir".
+         Found "NvccCompilation".
+         Found "NvccPath".
+         Found "RequiredIncludes".
+         Found "TargetMachinePlatform".
+         Found "CInterleavedPTX".
+         Found "CodeGeneration".
+         Found "GPUDebugInfo".
+         Found "MaxRegCount".
+         Found "PtxAsOptionV".
+         Found "Defines".
+         Found "Emulation".
+         Found "HostDebugInfo".
+         Found "FastMath".
+         Found "Optimization".
+         Found "Runtime".
+         Found "RuntimeChecks".
+         Found "TypeInfo".
+         Found "Warning".
+         Found "AdditionalOptions".
+         Found "CommandLineTemplate".
        CudaBuild:
-       Skipping target "CudaBuild" because all output files are up-to-date with respect to the input files.
-       ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\src\glslUtility.cpp ..\..\src\image.cpp ..\..\src\main.cpp ..\..\src\obj.cpp ..\..\src\objloader.cpp ..\..\src\scene.cpp ..\..\src\utilities.cpp
-         glslUtility.cpp
-         image.cpp
-         main.cpp
-         Note: including lib: glut32.lib
+         Compiling CUDA source file ..\..\src\raytraceKernel.cu...
+         cmd.exe /C "C:\Users\Shehzan\AppData\Local\Temp\a49b38aaed804dc8a64971b3f1b6c012.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\src\raytraceKernel.cu"
          
-     1>..\..\src\main.cpp(180): warning C4018: '<' : signed/unsigned mismatch
-     1>..\..\src\main.cpp(190): warning C4018: '<' : signed/unsigned mismatch
-     1>..\..\src\main.cpp(193): warning C4018: '<' : signed/unsigned mismatch
-         obj.cpp
-         objloader.cpp
-     1>..\..\src\objloader.cpp(72): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-     1>..\..\src\objloader.cpp(76): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-     1>..\..\src\objloader.cpp(91): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-     1>..\..\src\objloader.cpp(93): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-     1>..\..\src\objloader.cpp(95): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-     1>..\..\src\objloader.cpp(107): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
-         scene.cpp
-     1>..\..\src\scene.cpp(212): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(215): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(218): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(221): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(224): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(227): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(237): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(239): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(242): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(244): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(247): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(249): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(295): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(349): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(351): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(385): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(390): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(392): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(394): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(396): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(401): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>..\..\src\scene.cpp(403): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-         utilities.cpp
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\src\stb_image\stb_image.c ..\..\src\stb_image\stb_image_write.c
-         stb_image.c
-         stb_image_write.c
+         C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"    --keep-dir "Release" -maxrregcount=0  --machine 32 --compile      -Xcompiler "/EHsc /nologo /Od /Zi  /MD " -o "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\src\raytraceKernel.cu" 
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\intersections.h(110): warning : variable "inside" was set but never used
+         
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\intersections.h(368): warning : variable "intersected" was set but never used
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(317): warning : variable "BounceType" was declared but never referenced
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(430): warning : expression has no effect
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(572): warning : right operand of "%" is zero
+         
+         tmpxft_000030b0_00000000-0_raytraceKernel.cudafe1.gpu
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(430): warning : expression has no effect
+         
+         tmpxft_000030b0_00000000-5_raytraceKernel.cudafe2.gpu
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\glm\core\_swizzle.hpp(194): warning : missing return statement at end of non-void function "glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::operator=(const glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::Stub &)"
+         
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\intersections.h(110): warning : variable "inside" was set but never used
+         
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\intersections.h(368): warning : variable "intersected" was set but never used
+         
+     1>c:\users\shehzan\documents\github\project2-pathtracer\src\glm\gtc\matrix_transform.inl(107): warning : statement is unreachable
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(317): warning : variable "BounceType" was declared but never referenced
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(430): warning : expression has no effect
+         
+     1>C:/Users/Shehzan/Documents/GitHub/Project2-Pathtracer/src/raytraceKernel.cu(572): warning : right operand of "%" is zero
+         
+         tmpxft_000030b0_00000000-0_raytraceKernel.cudafe1.cpp
+         tmpxft_000030b0_00000000-11_raytraceKernel.ii
+       ClCompile:
+         All outputs are up-to-date.
+         All outputs are up-to-date.
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:../shared/glew/lib /LIBPATH:../shared/freeglut/lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\lib\Win32" cudart.lib glew32.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\565Raytracer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\Release\565Raytracer.lib" /MACHINE:X86 "C:\Users\Shehzan\Documents\GitHub\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Release/raytraceKernel.cu.obj"
          Release\glslUtility.obj
@@ -76,4 +95,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:05.52
+Time Elapsed 00:00:15.03
