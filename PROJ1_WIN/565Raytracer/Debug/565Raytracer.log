@@ -1,0 +1,273 @@
+﻿Build started 10/14/2012 7:03:04 AM.
+     1>Project "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Debug\565Raytracer.lastbuildstate".
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppClean.targets(74,5): warning : Access to the path 'C:\USERS\SHEHZAN\DOCUMENTS\VISUAL STUDIO 2010\PROJECTS\PROJECT2-PATHTRACER\PROJ1_WIN\DEBUG\565RAYTRACER.EXE' is denied.
+       CudaClean:
+         cmd.exe /C "C:\Users\Shehzan\AppData\Local\Temp\5eef584e2ab24062a0a17f37eb8da255.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" -clean
+         
+         C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" -clean 
+         Deleting file "Debug\raytraceKernel.cu.deps".
+       InitializeBuildStatus:
+         Creating "Debug\565Raytracer.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       AddCudaCompileDeps:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" /I../shared/glew/includes /I../shared/freeglut/includes /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I. /FIcuda_runtime.h /c "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" 
+       AddCudaCompilePropsDeps:
+         Found "CudaToolkitCustomDir".
+         Found "AdditionalDeps".
+         Found "CompileOut".
+         Found "Include".
+         Found "Keep".
+         Found "KeepDir".
+         Found "NvccCompilation".
+         Found "NvccPath".
+         Found "RequiredIncludes".
+         Found "TargetMachinePlatform".
+         Found "CInterleavedPTX".
+         Found "CodeGeneration".
+         Found "GPUDebugInfo".
+         Found "MaxRegCount".
+         Found "PtxAsOptionV".
+         Found "Defines".
+         Found "Emulation".
+         Found "HostDebugInfo".
+         Found "FastMath".
+         Found "Optimization".
+         Found "Runtime".
+         Found "RuntimeChecks".
+         Found "TypeInfo".
+         Found "Warning".
+         Found "AdditionalOptions".
+         Found "CommandLineTemplate".
+       CudaBuild:
+         Compiling CUDA source file ..\..\src\raytraceKernel.cu...
+         cmd.exe /C "C:\Users\Shehzan\AppData\Local\Temp\3537bdab4fbb412bba2ebf4e9746fd4c.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu"
+         
+         C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\src\raytraceKernel.cu" 
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(85): warning : variable "inside" was set but never used
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(400): warning : variable "intersected" was set but never used
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(298): warning : expression has no effect
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(406): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(408): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(410): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(412): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(452): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(406): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(408): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(410): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(412): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(452): warning : calling a host function("printf") from a __device__/__global__ function("MeshIntersectionTest") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(477): warning : calling a host function("printf") from a __device__/__global__ function("TriangleArea") is not allowed
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(477): warning : calling a host function("printf") from a __device__/__global__ function("TriangleArea") is not allowed
+         
+         tmpxft_0000325c_00000000-0_raytraceKernel.cudafe1.gpu
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(298): warning : expression has no effect
+         
+         tmpxft_0000325c_00000000-5_raytraceKernel.cudafe2.gpu
+         raytraceKernel.cu
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\_swizzle.hpp(194): warning : missing return statement at end of non-void function "glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::operator=(const glm::detail::_swizzle_base2<ValueType, VecType, N, E0, E1, E2, E3, 1>::Stub &)"
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(85): warning : variable "inside" was set but never used
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\intersections.h(400): warning : variable "intersected" was set but never used
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\gtc\matrix_transform.inl(107): warning : statement is unreachable
+         
+     1>C:/Users/Shehzan/Documents/Visual Studio 2010/Projects/Project2-Pathtracer/src/raytraceKernel.cu(298): warning : expression has no effect
+         
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\func_geometric.inl(246): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(731): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(731): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(731): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(109): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(151): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(169): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(88): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/internal_functional.h(48): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(237): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(238): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\glm\core\type_vec3.inl(239): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+     1>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\thrust/detail/device/cuda/copy_if.inl(201): warning : Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(134): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(183): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(200): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(260): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(272): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(307): Warning: Cannot tell what pointer points to, assuming global memory space
+         ./c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\thrust\detail\device\cuda\detail\fast_scan.inl(308): Warning: Cannot tell what pointer points to, assuming global memory space
+     1>ptxas C : /Users/Shehzan/AppData/Local/Temp/tmpxft_0000325c_00000000-1_raytraceKernel.ptx, line 1076; warning : Double is not supported. Demoting to float
+         tmpxft_0000325c_00000000-0_raytraceKernel.cudafe1.cpp
+         tmpxft_0000325c_00000000-11_raytraceKernel.ii
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\src\glslUtility.cpp ..\..\src\image.cpp ..\..\src\main.cpp ..\..\src\scene.cpp ..\..\src\utilities.cpp
+         utilities.cpp
+         scene.cpp
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(116): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(118): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(120): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(128): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(130): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(140): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(248): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(302): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(304): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(338): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(343): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(345): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(347): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(349): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(354): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\scene.cpp(356): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+         main.cpp
+         Note: including lib: glut32.lib
+         
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\main.cpp(126): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\main.cpp(136): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\shehzan\documents\visual studio 2010\projects\project2-pathtracer\src\main.cpp(139): warning C4018: '<' : signed/unsigned mismatch
+         image.cpp
+         glslUtility.cpp
+         Generating Code...
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I"C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.0\C\common\inc" /I../shared/glew/include /I../shared/freeglut/include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\src\stb_image\stb_image.c ..\..\src\stb_image\stb_image_write.c
+         stb_image_write.c
+         stb_image.c
+         Generating Code...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\565Raytracer.exe.embed.manifest.res" Debug\565Raytracer_manifest.rc 
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Debug\565Raytracer.exe" /INCREMENTAL /NOLOGO /LIBPATH:../shared/glew/lib /LIBPATH:../shared/freeglut/lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\lib\Win32" cudart.lib glew32.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\565Raytracer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Debug\565Raytracer.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Debug\565Raytracer.lib" /MACHINE:X86 "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj"
+         Debug\565Raytracer.exe.embed.manifest.res
+         Debug\glslUtility.obj
+         Debug\image.obj
+         Debug\main.obj
+         Debug\scene.obj
+         Debug\stb_image.obj
+         Debug\stb_image_write.obj
+         Debug\utilities.obj
+     1>LINK : fatal error LNK1104: cannot open file 'C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\Debug\565Raytracer.exe'
+     1>Done Building Project "C:\Users\Shehzan\Documents\Visual Studio 2010\Projects\Project2-Pathtracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" (rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:24.72

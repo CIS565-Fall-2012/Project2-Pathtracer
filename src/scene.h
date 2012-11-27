@@ -13,6 +13,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include "objloader.h"
 
 using namespace std;
 

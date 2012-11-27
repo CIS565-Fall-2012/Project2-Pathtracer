@@ -17,6 +17,8 @@
     <ClInclude Include="..\..\src\interactions.h" />
     <ClInclude Include="..\..\src\intersections.h" />
     <ClInclude Include="..\..\src\main.h" />
+    <ClInclude Include="..\..\src\obj.h" />
+    <ClInclude Include="..\..\src\objloader.h" />
     <ClInclude Include="..\..\src\raytraceKernel.h" />
     <ClInclude Include="..\..\src\scene.h" />
     <ClInclude Include="..\..\src\sceneStructs.h" />
@@ -28,6 +30,8 @@
     <ClCompile Include="..\..\src\glslUtility.cpp" />
     <ClCompile Include="..\..\src\image.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\obj.cpp" />
+    <ClCompile Include="..\..\src\objloader.cpp" />
     <ClCompile Include="..\..\src\scene.cpp" />
     <ClCompile Include="..\..\src\stb_image\stb_image.c" />
     <ClCompile Include="..\..\src\stb_image\stb_image_write.c" />
@@ -35,6 +39,26 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\..\src\raytraceKernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" />
+    <None Include="..\..\scenes\MeshCornellSimple.txt" />
+    <None Include="..\..\scenes\MeshScene.txt" />
+    <None Include="..\..\scenes\sampleScene.txt" />
+    <None Include="..\..\scenes\sampleScene2.txt" />
+    <None Include="..\..\scenes\sampleScene3.txt" />
+    <None Include="..\..\scenes\sampleScene4.txt" />
+    <None Include="..\..\scenes\sampleScene5.txt" />
+    <None Include="..\..\scenes\sampleScene6.txt" />
+    <None Include="..\..\scenes\sampleScene7.txt" />
+    <None Include="..\..\scenes\Scene.txt" />
+    <None Include="..\..\scenes\StanfordBunny.txt" />
+    <None Include="..\..\scenes\TeapotInCornellBox.txt" />
+    <None Include="..\..\scenes\UtahTeapot.txt" />
+    <None Include="Interactions_Back_Up.txt" />
+    <None Include="Junk.txt" />
+    <None Include="rayTraceKernalBackUp.txt" />
+    <None Include="sceneCPPBackUp.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF21CA49-522E-4E86-B508-EE515B248FC4}</ProjectGuid>
@@ -107,7 +131,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../shared/glew/lib;../shared/freeglut/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -117,6 +141,9 @@
     <CudaCompile>
       <CompileOut>$(ProjectDir)$(Platform)/$(Configuration)/%(Filename)%(Extension).obj</CompileOut>
       <Include>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include;C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc;../shared/glew/includes;../shared/freeglut/includes</Include>
+      <GPUDebugInfo>false</GPUDebugInfo>
+      <HostDebugInfo>false</HostDebugInfo>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

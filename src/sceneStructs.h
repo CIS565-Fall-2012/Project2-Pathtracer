@@ -16,6 +16,18 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	bool keep;
+	int pixelIndex;
+	bool isInside;
+	int currentObjIndex;
+	int currentMatIndex;
+};
+
+struct TriangleStruct
+{
+	int index;
+	glm::vec3 vertices[3];
+	glm::vec3 normal[3];
 };
 
 struct geom {
@@ -27,6 +39,14 @@ struct geom {
 	glm::vec3* scales;
 	cudaMat4* transforms;
 	cudaMat4* inverseTransforms;
+	TriangleStruct* triangles;
+	int numOfTriangles;
+	//For Bounding Sphere
+	cudaMat4  BSTransform;
+	cudaMat4  BSInverseTransform;
+	glm::vec3 BStranslation;
+	glm::vec3 BSrotation;
+	glm::vec3 BSscale;
 };
 
 struct staticGeom {
@@ -37,6 +57,14 @@ struct staticGeom {
 	glm::vec3 scale;
 	cudaMat4 transform;
 	cudaMat4 inverseTransform;
+	TriangleStruct* triangles;
+	int numOfTriangles;
+	//For Bounding Sphere
+	cudaMat4  BSTransform;
+	cudaMat4  BSInverseTransform;
+	glm::vec3 BStranslation;
+	glm::vec3 BSrotation;
+	glm::vec3 BSscale;
 };
 
 struct cameraData {
@@ -71,6 +99,22 @@ struct material{
 	glm::vec3 absorptionCoefficient;
 	float reducedScatterCoefficient;
 	float emittance;
+};
+
+struct intersectionStruct
+{
+	bool check;
+	glm::vec3 normal;
+	glm::vec3 intersectionPoint;
+	int closestIndex;
+};
+
+struct is_alive
+{
+	__host__ __device__	bool operator()(ray r)
+	{
+		return r.keep == 0;
+	}
 };
 
 #endif //CUDASTRUCTS_H
