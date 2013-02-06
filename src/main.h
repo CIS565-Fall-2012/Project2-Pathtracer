@@ -41,7 +41,7 @@ using namespace std;
 scene* renderScene;
 camera* renderCam;
 int targetFrame;
-int iterations;
+unsigned int iterations;
 bool finishedRender;
 bool singleFrameMode;
 
@@ -78,6 +78,8 @@ void runCuda();
 #else
 	void display();
 	void keyboard(unsigned char key, int x, int y);
+	void onMouseCb(int button, int state, int x, int y);
+	void onMouseMotionCb(int x, int y);
 #endif
 
 //-------------------------------

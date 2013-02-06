@@ -7,6 +7,10 @@
 
 #include "main.h"
 
+int theButtonState = 0;
+int theModifierState = 0;
+int lastX = 0, lastY = 0;
+
 //-------------------------------
 //-------------MAIN--------------
 //-------------------------------
@@ -90,6 +94,8 @@ int main(int argc, char** argv){
   #else
 	  glutDisplayFunc(display);
 	  glutKeyboardFunc(keyboard);
+	  glutMouseFunc(onMouseCb);
+	  glutMotionFunc(onMouseMotionCb);
 
 	  glutMainLoop();
   #endif
@@ -107,26 +113,30 @@ void runCuda(){
   
   if(iterations<renderCam->iterations){
     uchar4 *dptr=NULL;
-    iterations++;
+    ++iterations;
     cudaGLMapBufferObject((void**)&dptr, pbo);
   
     //pack geom and material arrays
     geom* geoms = new geom[renderScene->objects.size()];
     material* materials = new material[renderScene->materials.size()];
-    
-    for(int i=0; i<renderScene->objects.size(); i++){
+	
+	for(unsigned int i=0; i<renderScene->objects.size(); ++i){
       geoms[i] = renderScene->objects[i];
     }
-    for(int i=0; i<renderScene->materials.size(); i++){
+    for(unsigned int i=0; i<renderScene->materials.size(); ++i){
       materials[i] = renderScene->materials[i];
     }
-    
   
     // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), 
+		             geoms, renderScene->objects.size(), renderScene->meshes);
     
     // unmap buffer object
     cudaGLUnmapBufferObject(pbo);
+
+	// Cleanup
+	delete[] geoms;
+	delete[] materials;
   }else{
 
     if(!finishedRender){
@@ -136,13 +146,13 @@ void runCuda(){
       for(int x=0; x<renderCam->resolution.x; x++){
         for(int y=0; y<renderCam->resolution.y; y++){
           int index = x + (y * renderCam->resolution.x);
-          outputImage.writePixelRGB(x,y,renderCam->image[index]);
+          outputImage.writePixelRGB(renderCam->resolution.x-x,y,renderCam->image[index]);
         }
       }
       
       gammaSettings gamma;
-      gamma.applyGamma = true;
-      gamma.gamma = 1.0/2.2;
+      gamma.applyGamma = false;
+      gamma.gamma = 1.0/4.0;
       gamma.divisor = renderCam->iterations;
       outputImage.setGammaSettings(gamma);
       string filename = renderCam->imageName;
@@ -395,4 +405,78 @@ void shut_down(int return_code){
 	glfwTerminate();
   #endif
   exit(return_code);
+}
+
+void onMouseCb(int button, int state, int x, int y)
+{
+   theButtonState = button;
+   theModifierState = glutGetModifiers();
+   lastX = x;
+   lastY = y;
+}
+
+void onMouseMotionCb(int x, int y)
+{
+   int deltaX = lastX - x;
+   int deltaY = lastY - y;
+   bool moveLeftRight = abs(deltaX) > abs(deltaY);
+   bool moveUpDown = !moveLeftRight;
+
+   switch(theButtonState)
+   {
+   case GLUT_LEFT_BUTTON:
+	    // Move Camera
+		if (theModifierState)
+		{
+			if (GLUT_ACTIVE_ALT)
+			{
+				if (deltaY > 0)
+				{
+					renderCam->positions[0].z += 5;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+				else if (deltaY < 0 && renderCam->positions[0].z > 10)
+				{
+					renderCam->positions[0].z -= 5;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+			}
+		}
+		else
+		{
+			if (abs(deltaX) > abs(deltaY))
+			{
+				if (deltaX > 0)
+				{
+					renderCam->positions[0].x -= 1;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+				else if (deltaX < 0)
+				{
+					renderCam->positions[0].x += 1;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+			}
+			else if (deltaY > 0)
+			{
+				renderCam->positions[0].y -= 1;
+				glClear(GL_COLOR_BUFFER_BIT);
+				iterations = 0;
+			}
+			else if (deltaY < 0)
+			{
+				renderCam->positions[0].y += 1;
+				glClear(GL_COLOR_BUFFER_BIT);
+				iterations = 0;
+			}
+		}
+		break;
+   }
+   lastX = x;
+   lastY = y;
+   glutPostRedisplay();
 }

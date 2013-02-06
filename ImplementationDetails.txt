@@ -1,0 +1,15 @@
+Implemented the following:
+
+* Depth of field with aperture control (Make the aperture value in the scene files greater than 25 to have pin hole effect)
+* Mesh (obj) loader
+* Full reflection and refraction using Fresnel equations
+* Tried some hard coded motion blur, but didn't get time do it using the frame values
+* Coded up the Cook Torrance BRDF, but did not get time to tweak it
+
+Code:
+https://github.com/tijutv/Project2-Pathtracer
+
+Blog:
+http://cudapathtracer.blogspot.com/
+
+
