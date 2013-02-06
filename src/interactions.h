@@ -25,7 +25,7 @@ __host__ __device__ glm::vec3 calculateTransmission(glm::vec3 absorptionCoeffici
 __host__ __device__ glm::vec3 calculateTransmissionDirection(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR, bool& internalReflection);
 __host__ __device__ glm::vec3 calculateReflectionDirection(glm::vec3 normal, glm::vec3 incident);
 __host__ __device__ Fresnel calculateFresnel(glm::vec3 normal, glm::vec3 incident, float incidentIOR, float transmittedIOR, glm::vec3 reflectionDirection, glm::vec3 transmissionDirection);
-__host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 normal, float xi1, float xi2);
+__host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 normal, float xi1, float xi2, float xi3);
 
 void GetParametersForRayCast(glm::vec2 resolution, glm::vec3 eye, glm::vec3 view, glm::vec3 up, 
 	                        glm::vec2 fov, glm::vec3& M, glm::vec3& A, glm::vec3& B, float& distImagePlaneFromCamera){
@@ -122,12 +122,14 @@ __host__ __device__ Fresnel calculateFresnel(glm::vec3 normal, glm::vec3 inciden
 }
 
 //LOOK: This function demonstrates cosine weighted random direction generation in a sphere!
-__host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 normal, float xi1, float xi2) {
+__host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 normal, float xi1, float xi2, float xi3) {
     
     //crucial difference between this and calculateRandomDirectionInSphere: THIS IS COSINE WEIGHTED!
     
     float up = sqrt(xi1); // cos(theta)
     float over = sqrt(1 - up * up); // sin(theta)
+	if (xi3 <= 0.5)
+		over = -over;
     float around = xi2 * TWO_PI;
     
     // Find a direction that is not the normal based off of whether or not the normal's components 
@@ -145,7 +147,37 @@ __host__ __device__ glm::vec3 calculateRandomDirectionInHemisphere(glm::vec3 nor
     glm::vec3 perpendicularDirection1 = glm::normalize(glm::cross(normal, directionNotNormal));
     glm::vec3 perpendicularDirection2 = glm::normalize(glm::cross(normal, perpendicularDirection1)); 
     
-    return glm::normalize(( up * normal ) + ( cos(around) * over * perpendicularDirection1 ) + ( sin(around) * over * perpendicularDirection2 ));
+    glm::vec3 direction = glm::vec3(( up * normal ) + ( sin(around) * over * perpendicularDirection1 ) + ( cos(around) * over * perpendicularDirection2 ));
+	direction = glm::normalize(direction);
+	if (glm::dot(direction,normal)<0)
+		direction = -direction;
+    return direction;
+
+	/*float  theta = acos(sqrt(1.0-xi1));
+    float  phi = TWO_PI * xi2;
+
+    float xs = sinf(theta) * cosf(phi);
+    float ys = cosf(theta);
+    float zs = sinf(theta) * sinf(phi);
+
+    glm::vec3 y = glm::vec3(normal.x, normal.y, normal.z);
+    glm::vec3 h = y;
+    if (fabs(h.x)<=fabs(h.y) && fabs(h.x)<=fabs(h.z))
+        h.x= 1.0;
+    else if (fabs(h.y)<=fabs(h.x) && fabs(h.y)<=fabs(h.z))
+        h.y= 1.0;
+    else
+        h.z= 1.0;
+
+
+    glm::vec3 x = glm::normalize(glm::cross(h, y));
+    glm::vec3 z = glm::normalize(glm::cross(x, y));
+
+    glm::vec3 direction = xs * x + ys * y + zs * z;
+	direction = glm::normalize(direction);
+	if (glm::dot(direction,normal)<0)
+		direction = -direction;
+    return direction;*/
     
 }
 
@@ -167,50 +199,50 @@ __host__ __device__ glm::vec3 getRandomDirectionInSphere(float xi1, float xi2) {
     return glm::normalize(glm::vec3(x, y, z));
 }
 
-__host__ __device__ void CookTorrence(ray inRay, ray& outRay, glm::vec3 intersect, glm::vec3 N, glm::vec3 emittedColor, 
-	                                  glm::vec3& color, material mat, bool inside, float xi1, float xi2)
-{
-	// Reference: http://renderman.pixar.com/view/cook-torrance-shader
-	float gaussConstant = 100;
-	float m = 0.2; // roughness
-
-	// Calculate reflective and transmittive coefficients using Fresnel equations
-	float n1, n2;
-	if (inside)
-	{
-		n2 = 1.0f;
-		n1 = mat.indexOfRefraction;
-	}
-	else
-	{
-		n1 = 1.0f;
-		n2 = mat.indexOfRefraction;
-	}
-
-	Fresnel fresnel = calculateFresnel(N, intersect, n1, n2);
-	outRay.direction = calculateRandomDirectionInHemisphere(N, xi1, xi2);
-	glm::vec3 L = outRay.direction;
-
-	glm::vec3 V = glm::normalize(inRay.direction * -1.0f);
-	
-	// Half angle vector
-	glm::vec3 H = glm::normalize(V+L);
-
-	// Attenuation Factor G
-	float NDotV = glm::dot(N, V);
-	float NDotH = glm::dot(N, H);
-	float VDotH = glm::dot(V, H);
-	float NDotL = glm::dot(N, L);
-
-	float G = glm::min(2*NDotH*NDotV/VDotH, 2*NDotH*NDotL/VDotH);
-	G = glm::min(1.0f, G);
-
-	// Microfacet Slope Distribution D
-	float alpha = acos(NDotH);
-	float D = gaussConstant*glm::exp(-(alpha*alpha)/(m*m));
-	float cook = (fresnel.reflectionCoefficient*D*G)/(PI*NDotL*NDotV);
-	color = emittedColor * mat.color;// * cook;
-}
+//__host__ __device__ void CookTorrence(ray inRay, ray& outRay, glm::vec3 intersect, glm::vec3 N, glm::vec3 emittedColor, 
+//	                                  glm::vec3& color, material mat, bool inside, float xi1, float xi2)
+//{
+//	// Reference: http://renderman.pixar.com/view/cook-torrance-shader
+//	float gaussConstant = 100;
+//	float m = 0.2; // roughness
+//
+//	// Calculate reflective and transmittive coefficients using Fresnel equations
+//	float n1, n2;
+//	if (inside)
+//	{
+//		n2 = 1.0f;
+//		n1 = mat.indexOfRefraction;
+//	}
+//	else
+//	{
+//		n1 = 1.0f;
+//		n2 = mat.indexOfRefraction;
+//	}
+//
+//	Fresnel fresnel = calculateFresnel(N, intersect, n1, n2);
+//	outRay.direction = calculateRandomDirectionInHemisphere(N, xi1, xi2);
+//	glm::vec3 L = outRay.direction;
+//
+//	glm::vec3 V = glm::normalize(inRay.direction * -1.0f);
+//	
+//	// Half angle vector
+//	glm::vec3 H = glm::normalize(V+L);
+//
+//	// Attenuation Factor G
+//	float NDotV = glm::dot(N, V);
+//	float NDotH = glm::dot(N, H);
+//	float VDotH = glm::dot(V, H);
+//	float NDotL = glm::dot(N, L);
+//
+//	float G = glm::min(2*NDotH*NDotV/VDotH, 2*NDotH*NDotL/VDotH);
+//	G = glm::min(1.0f, G);
+//
+//	// Microfacet Slope Distribution D
+//	float alpha = acos(NDotH);
+//	float D = gaussConstant*glm::exp(-(alpha*alpha)/(m*m));
+//	float cook = (fresnel.reflectionCoefficient*D*G)/(PI*NDotL*NDotV);
+//	color = emittedColor * mat.color;// * cook;
+//}
 
 //TODO (PARTIALLY OPTIONAL): IMPLEMENT THIS FUNCTION
 //returns 0 if diffuse scatter, 1 if reflected, 2 if transmitted.
@@ -296,7 +328,7 @@ __host__ __device__ int calculateBSDF(ray inRay, ray& outRay, glm::vec3 intersec
 		}
 
 		// Run diffuse if we reach here
-		outRay.direction = calculateRandomDirectionInHemisphere(normal, xi1, xi2);
+		outRay.direction = calculateRandomDirectionInHemisphere(normal, xi1, xi2, xi3);
 		color = emittedColor*m.color;
 		//return 0;
 		//CookTorrence(inRay, outRay, intersect, normal, emittedColor, color, m, inside, xi1, xi2);

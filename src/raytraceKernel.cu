@@ -163,10 +163,22 @@ __global__ void sendImageToPBO(uchar4* PBOpos, glm::vec2 resolution, glm::vec3* 
   if(x<=resolution.x && y<=resolution.y){
 
       glm::vec3 color;      
-      color.x = image[index].x*255.0;
-      color.y = image[index].y*255.0;
-      color.z = image[index].z*255.0;
+      color.x = image[index].x;
+      color.y = image[index].y;
+      color.z = image[index].z;
 
+	  float maxColor = color.x;
+	  if (color.y > maxColor)
+		maxColor = color.y;
+	  if (color.z > maxColor)
+		maxColor = color.z;
+
+	  if (maxColor > 1.0f)
+		color /= maxColor;
+
+	  color *= 255.0;
+
+		/*
       if(color.x>255){
         color.x = 255;
       }
@@ -178,7 +190,8 @@ __global__ void sendImageToPBO(uchar4* PBOpos, glm::vec2 resolution, glm::vec3* 
       if(color.z>255){
         color.z = 255;
       }
-      
+      */
+
       // Each thread writes one pixel location in the texture (textel)
       PBOpos[index].w = 0;
       PBOpos[index].x = color.x;     
@@ -247,7 +260,7 @@ __global__ void raytraceRay(RayPackage* rayPackage, glm::vec2 resolution, float 
 		if (t > 0)
 		{
 			FindIntersectionAndBSDF(rayPackage[index], materials[materialId], intersectionPoint, normal,
-				                    colors[rayPackage[index].index], rayPackage[index].index*iterations*rayDepth, iterations);
+				                    colors[rayPackage[index].index], rayPackage[index].index*(iterations-1000)*rayDepth, iterations);
 		}
 	}
 }
@@ -520,6 +533,9 @@ void cudaRaytraceCore(uchar4* PBOpos, camera* renderCam, int frame, unsigned int
 		thrust::device_ptr<RayPackage> devRayPackagePtr(cudaRayPackage);
 		thrust::device_ptr<RayPackage> devRayPackageEndPtr = thrust::remove_if(devRayPackagePtr, devRayPackagePtr+rayCount, IsRayAbsent());
 		rayCount = devRayPackageEndPtr.get() - devRayPackagePtr.get();
+
+		if (rayCount <= 0)
+		    break;
 		
 		// Create blocks for lesser number of rays found by stream compaction
 		fullBlocksPerGridNew = dim3((int)ceil(float(renderCam->resolution.x)/float(tileSize)), (int)ceil(float(rayCount)/(float)renderCam->resolution.x/float(tileSize)));

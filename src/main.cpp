@@ -7,6 +7,10 @@
 
 #include "main.h"
 
+int theButtonState = 0;
+int theModifierState = 0;
+int lastX = 0, lastY = 0;
+
 //-------------------------------
 //-------------MAIN--------------
 //-------------------------------
@@ -90,6 +94,8 @@ int main(int argc, char** argv){
   #else
 	  glutDisplayFunc(display);
 	  glutKeyboardFunc(keyboard);
+	  glutMouseFunc(onMouseCb);
+	  glutMotionFunc(onMouseMotionCb);
 
 	  glutMainLoop();
   #endif
@@ -399,4 +405,78 @@ void shut_down(int return_code){
 	glfwTerminate();
   #endif
   exit(return_code);
+}
+
+void onMouseCb(int button, int state, int x, int y)
+{
+   theButtonState = button;
+   theModifierState = glutGetModifiers();
+   lastX = x;
+   lastY = y;
+}
+
+void onMouseMotionCb(int x, int y)
+{
+   int deltaX = lastX - x;
+   int deltaY = lastY - y;
+   bool moveLeftRight = abs(deltaX) > abs(deltaY);
+   bool moveUpDown = !moveLeftRight;
+
+   switch(theButtonState)
+   {
+   case GLUT_LEFT_BUTTON:
+	    // Move Camera
+		if (theModifierState)
+		{
+			if (GLUT_ACTIVE_ALT)
+			{
+				if (deltaY > 0)
+				{
+					renderCam->positions[0].z += 5;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+				else if (deltaY < 0 && renderCam->positions[0].z > 10)
+				{
+					renderCam->positions[0].z -= 5;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+			}
+		}
+		else
+		{
+			if (abs(deltaX) > abs(deltaY))
+			{
+				if (deltaX > 0)
+				{
+					renderCam->positions[0].x -= 1;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+				else if (deltaX < 0)
+				{
+					renderCam->positions[0].x += 1;
+					glClear(GL_COLOR_BUFFER_BIT);
+					iterations = 0;
+				}
+			}
+			else if (deltaY > 0)
+			{
+				renderCam->positions[0].y -= 1;
+				glClear(GL_COLOR_BUFFER_BIT);
+				iterations = 0;
+			}
+			else if (deltaY < 0)
+			{
+				renderCam->positions[0].y += 1;
+				glClear(GL_COLOR_BUFFER_BIT);
+				iterations = 0;
+			}
+		}
+		break;
+   }
+   lastX = x;
+   lastY = y;
+   glutPostRedisplay();
 }
