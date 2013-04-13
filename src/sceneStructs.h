@@ -16,6 +16,20 @@ enum GEOMTYPE{ SPHERE, CUBE, MESH };
 struct ray {
 	glm::vec3 origin;
 	glm::vec3 direction;
+	glm::vec3 color_ray;
+	int index_ray;
+	bool useful;
+};
+struct triangle {
+  glm::vec3 p0;
+  glm::vec3 p1;
+  glm::vec3 p2;
+  glm::vec3 c0;
+  glm::vec3 c1;
+  glm::vec3 c2;
+  glm::vec3 n1;
+  glm::vec3 n2;
+  glm::vec3 n0;
 };
 
 struct geom {
@@ -26,6 +40,7 @@ struct geom {
 	glm::vec3* rotations;
 	glm::vec3* scales;
 	cudaMat4* transforms;
+	cudaMat4* tranposeTranforms;
 	cudaMat4* inverseTransforms;
 };
 
@@ -36,6 +51,7 @@ struct staticGeom {
 	glm::vec3 rotation;
 	glm::vec3 scale;
 	cudaMat4 transform;
+	cudaMat4 tranposeTranform;
 	cudaMat4 inverseTransform;
 };
 
@@ -45,6 +61,7 @@ struct cameraData {
 	glm::vec3 view;
 	glm::vec3 up;
 	glm::vec2 fov;
+	
 };
 
 struct camera {
@@ -58,18 +75,27 @@ struct camera {
 	glm::vec3* image;
 	ray* rayList;
 	std::string imageName;
+	glm::vec3 centerPosition;
+	float yaw;
+	float pitch;
+	float radius;
+	float apertureRadius;
+	void fixYaw();
+	void fixPitch();
+	void fixRadius();
+	void fixApertureRadius();
 };
 
 struct material{
 	glm::vec3 color;
-	float specularExponent;
+	double specularExponent;
 	glm::vec3 specularColor;
-	float hasReflective;
-	float hasRefractive;
-	float indexOfRefraction;
-	float hasScatter;
+	double hasReflective;
+	double hasRefractive;
+	double indexOfRefraction;
+	double hasScatter;
 	glm::vec3 absorptionCoefficient;
-	float reducedScatterCoefficient;
+	double reducedScatterCoefficient;
 	float emittance;
 };
 
