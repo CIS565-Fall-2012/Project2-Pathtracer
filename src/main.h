@@ -1,9 +1,9 @@
 // CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
-// Written by Yining Karl Li, Copyright (c) 2012 University of Pennsylvania
+// Written by Yining Karl Li and Gundeep Singh, Copyright (c) 2012 University of Pennsylvania
 // This file includes code from:
 //       Rob Farber for CUDA-GL interop, from CUDA Supercomputing For The Masses: http://www.drdobbs.com/architecture-and-design/cuda-supercomputing-for-the-masses-part/222600097
 //       Varun Sampath and Patrick Cozzi for GLSL Loading, from CIS565 Spring 2012 HW5 at the University of Pennsylvania: http://cis565-spring-2012.github.com/
-//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
+//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer
 
 #ifndef MAIN_H
 #define MAIN_H
@@ -31,8 +31,30 @@
 #include "raytraceKernel.h"
 #include "utilities.h"
 #include "scene.h"
+#include "obj.h"
+#include "objloader.h"
+//#include  "../PROJ1_WIN/cukd-master/kdtree.h"
+
+//#include "Utility_AO.h"
+
+
 
 using namespace std;
+
+//-------------------------------
+//----------Mesh/Obj Loader-----------
+//-------------------------------
+
+obj *mesh;
+float* vbo;
+float* nbo;
+int nbosize;
+int vbosize;
+float* cbo;
+int cbosize;
+int* ibo;
+int ibosize;
+
 
 //-------------------------------
 //----------PATHTRACER-----------
@@ -41,7 +63,7 @@ using namespace std;
 scene* renderScene;
 camera* renderCam;
 int targetFrame;
-int iterations;
+unsigned int iterations;
 bool finishedRender;
 bool singleFrameMode;
 

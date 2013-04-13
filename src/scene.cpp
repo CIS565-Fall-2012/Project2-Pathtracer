@@ -1,10 +1,10 @@
 // CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
-// Written by Yining Karl Li, Copyright (c) 2012 University of Pennsylvania
+// Written by Yining Karl Li and Gundeep Singh, Copyright (c) 2012 University of Pennsylvania
 // This file includes code from:
-//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
-
+//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer:
 #include <iostream>
 #include "scene.h"
+
 
 scene::scene(string filename){
 	cout << "Reading scene frome " << filename << "..." << endl;
@@ -32,6 +32,21 @@ scene::scene(string filename){
 	}
 }
 
+int scene::loadMesh(string filename)
+{
+	
+	mesh= new obj();
+	objLoader* loader= new objLoader(filename,mesh);
+	mesh->buildVBOs();
+
+	cout<<"buildingvbos";
+
+	meshes.push_back(*mesh);
+	delete mesh;
+	delete loader;
+	return -1;
+}
+
 int scene::loadObject(string objectid){
     int id = atoi(objectid.c_str());
     if(id!=objects.size()){
@@ -52,6 +67,7 @@ int scene::loadObject(string objectid){
                 cout << "Creating new cube..." << endl;
 				newObject.type = CUBE;
             }else{
+
 				string objline = line;
                 string name;
                 string extension;
@@ -61,7 +77,10 @@ int scene::loadObject(string objectid){
                 if(strcmp(extension.c_str(), "obj")==0){
                     cout << "Creating new mesh..." << endl;
                     cout << "Reading mesh from " << line << "... " << endl;
+					// my code// 
 		    		newObject.type = MESH;
+					loadMesh(line);
+
                 }else{
                     cout << "ERROR: " << line << " is not a valid object type!" << endl;
                     return -1;
@@ -71,14 +90,15 @@ int scene::loadObject(string objectid){
        
 	//link material
 	getline(fp_in,line);
-	if(!line.empty() && fp_in.good()){
+	if(!line.empty() && fp_in.good())
+	{
 	    vector<string> tokens = utilityCore::tokenizeString(line);
 	    newObject.materialid = atoi(tokens[1].c_str());
 	    cout << "Connecting Object " << objectid << " to Material " << newObject.materialid << "..." << endl;
-        }
+    }
         
 	//load frames
-        int frameCount = 0;
+    int frameCount = 0;
 	getline(fp_in,line);
 	vector<glm::vec3> translations;
 	vector<glm::vec3> scales;
@@ -116,6 +136,7 @@ int scene::loadObject(string objectid){
 	newObject.scales = new glm::vec3[frameCount];
 	newObject.transforms = new cudaMat4[frameCount];
 	newObject.inverseTransforms = new cudaMat4[frameCount];
+	newObject.tranposeTranforms= new cudaMat4[frameCount];
 	for(int i=0; i<frameCount; i++){
 		newObject.translations[i] = translations[i];
 		newObject.rotations[i] = rotations[i];
@@ -123,9 +144,16 @@ int scene::loadObject(string objectid){
 		glm::mat4 transform = utilityCore::buildTransformationMatrix(translations[i], rotations[i], scales[i]);
 		newObject.transforms[i] = utilityCore::glmMat4ToCudaMat4(transform);
 		newObject.inverseTransforms[i] = utilityCore::glmMat4ToCudaMat4(glm::inverse(transform));
+		newObject.tranposeTranforms[i] = utilityCore::glmMat4ToCudaMat4(glm::inverse(glm::transpose(transform)));
 	}
-	
+//	if(newObject.type==CUBE || newObject.type==SPHERE)
+//	{
         objects.push_back(newObject);
+//	}
+	//else if(newObject.type==MESH)
+	//{
+		//meshes.push_back(newObject); 
+//	}
 	
 	cout << "Loaded " << frameCount << " frames for Object " << objectid << "!" << endl;
         return 1;
@@ -133,22 +161,25 @@ int scene::loadObject(string objectid){
 }
 
 int scene::loadCamera(){
+	
+	//if ( cameramoved ==false)
+	{
 	cout << "Loading Camera ..." << endl;
         camera newCamera;
-	float fovy;
+	double fovy;
 	
 	//load static properties
 	for(int i=0; i<4; i++){
 		string line;
 		getline(fp_in,line);
 		vector<string> tokens = utilityCore::tokenizeString(line);
-		if(strcmp(tokens[0].c_str(), "RES")==0){
+		if(strcmp(tokens[0].c_str(), "RES")==0.0f){
 			newCamera.resolution = glm::vec2(atoi(tokens[1].c_str()), atoi(tokens[2].c_str()));
-		}else if(strcmp(tokens[0].c_str(), "FOVY")==0){
+		}else if(strcmp(tokens[0].c_str(), "FOVY")==0.0f){
 			fovy = atof(tokens[1].c_str());
 		}else if(strcmp(tokens[0].c_str(), "ITERATIONS")==0){
 			newCamera.iterations = atoi(tokens[1].c_str());
-		}else if(strcmp(tokens[0].c_str(), "FILE")==0){
+		}else if(strcmp(tokens[0].c_str(), "FILE")==0.0f){
 			newCamera.imageName = tokens[1];
 		}
 	}
@@ -199,14 +230,21 @@ int scene::loadCamera(){
 	}
 
 	//calculate fov based on resolution
-	float yscaled = tan(fovy*(PI/180));
-	float xscaled = (yscaled * newCamera.resolution.x)/newCamera.resolution.y;
-	float fovx = (atan(xscaled)*180)/PI;
+	double yscaled = tan(fovy*(PI/180));
+	double xscaled = (yscaled * newCamera.resolution.x)/newCamera.resolution.y;
+	double fovx = (atan(xscaled)*180)/PI;
 	newCamera.fov = glm::vec2(fovx, fovy);
 
 	renderCam = newCamera;
 	
 	//set up render camera stuff
+	renderCam.yaw=0.3f;
+	renderCam.pitch=0.0f;
+	renderCam.radius=10.0f;
+	
+	
+	renderCam.centerPosition= glm::vec3(-4,3,0);
+
 	renderCam.image = new glm::vec3[(int)renderCam.resolution.x*(int)renderCam.resolution.y];
 	renderCam.rayList = new ray[(int)renderCam.resolution.x*(int)renderCam.resolution.y];
 	for(int i=0; i<renderCam.resolution.x*renderCam.resolution.y; i++){
@@ -215,6 +253,8 @@ int scene::loadCamera(){
 	
 	cout << "Loaded " << frameCount << " frames for camera!" << endl;
 	return 1;
+}
+
 }
 
 int scene::loadMaterial(string materialid){
@@ -234,26 +274,26 @@ int scene::loadMaterial(string materialid){
 			if(strcmp(tokens[0].c_str(), "RGB")==0){
 				glm::vec3 color( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
 				newMaterial.color = color;
-			}else if(strcmp(tokens[0].c_str(), "SPECEX")==0){
+			}else if(strcmp(tokens[0].c_str(), "SPECEX")==0.0f){
 				newMaterial.specularExponent = atof(tokens[1].c_str());				  
-			}else if(strcmp(tokens[0].c_str(), "SPECRGB")==0){
+			}else if(strcmp(tokens[0].c_str(), "SPECRGB")==0.0f){
 				glm::vec3 specColor( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
 				newMaterial.specularColor = specColor;
-			}else if(strcmp(tokens[0].c_str(), "REFL")==0){
+			}else if(strcmp(tokens[0].c_str(), "REFL")==0.0f){
 				newMaterial.hasReflective = atof(tokens[1].c_str());
-			}else if(strcmp(tokens[0].c_str(), "REFR")==0){
+			}else if(strcmp(tokens[0].c_str(), "REFR")==0.0f){
 				newMaterial.hasRefractive = atof(tokens[1].c_str());
-			}else if(strcmp(tokens[0].c_str(), "REFRIOR")==0){
+			}else if(strcmp(tokens[0].c_str(), "REFRIOR")==0.0f){
 				newMaterial.indexOfRefraction = atof(tokens[1].c_str());					  
-			}else if(strcmp(tokens[0].c_str(), "SCATTER")==0){
+			}else if(strcmp(tokens[0].c_str(), "SCATTER")==0.0f){
 				newMaterial.hasScatter = atof(tokens[1].c_str());
-			}else if(strcmp(tokens[0].c_str(), "ABSCOEFF")==0){
+			}else if(strcmp(tokens[0].c_str(), "ABSCOEFF")==0.0f){
 				glm::vec3 abscoeff( atof(tokens[1].c_str()), atof(tokens[2].c_str()), atof(tokens[3].c_str()) );
 				newMaterial.absorptionCoefficient = abscoeff;
-			}else if(strcmp(tokens[0].c_str(), "RSCTCOEFF")==0){
+			}else if(strcmp(tokens[0].c_str(), "RSCTCOEFF")==0.0f){
 				newMaterial.reducedScatterCoefficient = atof(tokens[1].c_str());					  
-			}else if(strcmp(tokens[0].c_str(), "EMITTANCE")==0){
-				newMaterial.emittance = atof(tokens[1].c_str());					  
+			}else if(strcmp(tokens[0].c_str(), "EMITTANCE")==0.0f){
+				newMaterial.emittance = 1.0f*atof(tokens[1].c_str());					  
 			
 			}
 		}

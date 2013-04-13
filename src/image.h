@@ -28,6 +28,7 @@ private:
 public:
     image(int x, int y);
     ~image();
+	//void deleteImage(image* image);
     
     //------------------------
     //-------GETTERS----------

@@ -12,6 +12,8 @@
     <ClCompile Include="..\..\src\stb_image\stb_image_write.c">
       <Filter>stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\obj.cpp" />
+    <ClCompile Include="..\..\src\objloader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\cudaMat4.h" />
@@ -30,6 +32,8 @@
     <ClInclude Include="..\..\src\stb_image\stb_image.h">
       <Filter>stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\obj.h" />
+    <ClInclude Include="..\..\src\objloader.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\..\src\raytraceKernel.cu" />
@@ -38,5 +42,10 @@
     <Filter Include="stb_image">
       <UniqueIdentifier>{011aa553-95e8-4e59-b7ff-1bb89aebe21d}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scenes\sampleScene.txt" />
+    <None Include="shaders\passthroughFS.glsl" />
+    <None Include="shaders\passthroughVS.glsl" />
   </ItemGroup>
 </Project>

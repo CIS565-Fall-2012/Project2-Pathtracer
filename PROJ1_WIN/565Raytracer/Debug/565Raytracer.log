@@ -1,0 +1,15 @@
+﻿Build started 3/13/2013 2:20:30 AM.
+     1>Project "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" on node 2 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "Debug\565Raytracer.lastbuildstate".
+       CudaClean:
+         cmd.exe /C "C:\Users\gundeep\AppData\Local\Temp\42176e3f96284a079cc3ab0f5eb3e315.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\src\raytraceKernel.cu" -clean
+         
+         C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\PROJ1_WIN\565Raytracer>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" -I"C:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.0/C/common/inc" -I"../shared/glew/includes" -I"../shared/freeglut/includes" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\PROJ1_WIN\565Raytracer\Win32/Debug/raytraceKernel.cu.obj" "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\src\raytraceKernel.cu" -clean 
+         Deleting file "Debug\raytraceKernel.cu.deps".
+     1>Done Building Project "C:\Users\gundeep\Desktop\GPUpathTracer\GPU-Path-Tracer\PROJ1_WIN\565Raytracer\565Raytracer.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.03

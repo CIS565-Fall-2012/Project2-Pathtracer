@@ -1,11 +1,144 @@
 // CIS565 CUDA Raytracer: A parallel raytracer for Patrick Cozzi's CIS565: GPU Computing at the University of Pennsylvania
-// Written by Yining Karl Li, Copyright (c) 2012 University of Pennsylvania
+// Written by Yining Karl Li and Gundeep Singh, Copyright (c) 2012 University of Pennsylvania
 // This file includes code from:
-//       Rob Farber for CUDA-GL interop, from CUDA Supercomputing For The Masses: http://www.drdobbs.com/architecture-and-design/cuda-supercomputing-for-the-masses-part/222600097
-//       Varun Sampath and Patrick Cozzi for GLSL Loading, from CIS565 Spring 2012 HW5 at the University of Pennsylvania: http://cis565-spring-2012.github.com/
-//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer: http://www.yiningkarlli.com
-
+//       //Varun Sampath and Patrick Cozzi for GLSL Loading, from CIS565 Spring 2012 HW5 at the University of Pennsylvania: http://cis565-spring-2012.github.com/
+//       Yining Karl Li's TAKUA Render, a massively parallel pathtracing renderer:
 #include "main.h"
+
+//////////////////////////////////
+//////////Interactive camera/////
+/////////////////////////////////
+
+void fixYaw() {
+	renderCam->yaw = glm::mod(renderCam->yaw,6.28f); // Normalize the yaw.
+}
+
+void fixPitch() {
+	float padding = 0.05;
+	renderCam->pitch = clamp(renderCam->pitch, -PI/2 + padding, PI/2 - padding); // Limit the pitch.
+}
+
+void fixRadius() {
+	float minRadius = 0.02;
+	float maxRadius = 100.0;
+	renderCam->radius = clamp(renderCam->radius, minRadius, maxRadius);
+}
+void fixApertureRadius() {
+	float minApertureRadius = 0.0;
+	float maxApertureRadius = 25.0;
+	renderCam->apertureRadius = clamp(renderCam->apertureRadius, minApertureRadius, maxApertureRadius);
+}
+
+void changeYaw(float m){
+	renderCam->yaw += m;
+	fixYaw();
+}
+
+void changePitch(float m){
+	renderCam->pitch += m;
+	fixPitch();
+}
+
+void changeRadius(float m){
+	renderCam->radius += renderCam->radius * m; // Change proportional to current radius. Assuming radius isn't allowed to go to zero.
+	//fixRadius();
+}
+
+void changeAltitude(float m){
+	renderCam->centerPosition.y += m;
+	//fixCenterPosition();
+}
+
+void changeApertureDiameter(float m){
+	renderCam->apertureRadius += (renderCam->apertureRadius + 0.01) * m; // Change proportional to current apertureRadius.
+	//fixApertureRadius();
+}
+
+float rx;
+float ry;
+float dist;
+const float ZOOM_STEP = 0.01f;
+
+void zoom(float dz) {
+	dist = clamp(dist - ZOOM_STEP*dz, 1.5f, 10.0f);
+}
+
+void rotate(float dx, float dy) {
+	if (abs(dx) > 0.0f) {
+        rx += dx;
+        rx = fmod(rx,360.0f);
+	}
+	if (abs(dy) > 0.0f) {
+        ry += dy;
+        ry = clamp(ry, - (4.0f/5.0f)*90.0f, (4.0f/5.0f)*90.0f);
+	}
+}
+
+
+
+
+int mouse_buttons = 0;
+int mouse_old_x = 0;
+int mouse_old_y = 0;
+int theModifierState=0;
+
+ 
+void motion(int x, int y)
+{	
+	
+    float dx, dy;
+    dx = (float)( mouse_old_x-x);
+    dy = (float)( mouse_old_y-y);
+
+	 if( dx !=0 || dy!=0)
+	 {
+		if (mouse_buttons == GLUT_RIGHT_BUTTON)  // Rotate
+			{
+				//cout<<"mouse left button";
+				changeYaw(dx * 0.01);
+				changePitch(-dy * 0.01);
+			}
+			else if (mouse_buttons == GLUT_MIDDLE_BUTTON) // Zoom
+			{
+				changeAltitude(-dy * 0.01);
+			}    
+
+			if (mouse_buttons ==  GLUT_LEFT_BUTTON) // camera move
+			{
+				changeRadius(-dy*0.01f);
+			}
+		mouse_old_x = x;
+		mouse_old_y = y;
+		//cudaDeviceReset();
+		//pathtracerReset();
+	//	deletePBO(&pbo);
+		//runCuda(); 
+		
+		for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
+		renderCam->image[i] = glm::vec3(0,0,0);
+		}
+		iterations=0;
+		glutPostRedisplay();
+	 }
+}
+
+void mouse(int button, int state, int x, int y)
+{
+    mouse_buttons = button;
+	theModifierState = glutGetModifiers();
+	mouse_old_x = x;
+	mouse_old_y = y;
+	motion(x, y);
+
+}
+
+
+void reshape(int w, int h)
+{
+	glViewport(0,0,(GLsizei)w,(GLsizei)h);
+}
+
+
 
 //-------------------------------
 //-------------MAIN--------------
@@ -32,7 +165,8 @@ int main(int argc, char** argv){
   for(int i=1; i<argc; i++){
     string header; string data;
     istringstream liness(argv[i]);
-    getline(liness, header, '='); getline(liness, data, '=');
+    getline(liness, header, '='); 
+	getline(liness, data, '=');
     if(strcmp(header.c_str(), "scene")==0){
       renderScene = new scene(data);
       loadedScene = true;
@@ -40,6 +174,7 @@ int main(int argc, char** argv){
       targetFrame = atoi(data.c_str());
       singleFrameMode = true;
     }
+	
   }
 
   if(!loadedScene){
@@ -70,12 +205,16 @@ int main(int argc, char** argv){
 
   initVAO();
   initTextures();
+  
 
   GLuint passthroughProgram;
   passthroughProgram = initShader("shaders/passthroughVS.glsl", "shaders/passthroughFS.glsl");
 
   glUseProgram(passthroughProgram);
   glActiveTexture(GL_TEXTURE0);
+
+  //initSSAO();
+  //initQuad();
 
   #ifdef __APPLE__
 	  // send into GLFW main loop
@@ -88,8 +227,20 @@ int main(int argc, char** argv){
 
 	  glfwTerminate();
   #else
+		glewInit();
+		GLenum err=glewInit();
+		if(GLEW_OK !=err)
+		{
+			cout<<"glew failed"<<endl;
+			exit(1);
+		}
+
+
 	  glutDisplayFunc(display);
+	  glutReshapeFunc(reshape);	
 	  glutKeyboardFunc(keyboard);
+	  glutMouseFunc(mouse);
+	  glutMotionFunc(motion);
 
 	  glutMainLoop();
   #endif
@@ -108,26 +259,125 @@ void runCuda(){
   if(iterations<renderCam->iterations){
     uchar4 *dptr=NULL;
     iterations++;
-    cudaGLMapBufferObject((void**)&dptr, pbo);
-  
-    //pack geom and material arrays
+    cudaGLMapBufferObject((void**)&dptr, pbo);  // hmm pbo is program buffer
+
+	//////////////////////////////////////////  
+    ///////pack geom and material arrays//////
+	//////////////////////////////////////////
+
     geom* geoms = new geom[renderScene->objects.size()];
+	obj* objs= new obj[renderScene->meshes.size()];
     material* materials = new material[renderScene->materials.size()];
     
-    for(int i=0; i<renderScene->objects.size(); i++){
+    for(unsigned int i=0; i<renderScene->objects.size(); i++)
+	{
       geoms[i] = renderScene->objects[i];
     }
-    for(int i=0; i<renderScene->materials.size(); i++){
-      materials[i] = renderScene->materials[i];
+	for(unsigned int k=0; k<renderScene->meshes.size(); k++)
+	{
+		
+		objs[k]= renderScene->meshes[k];
+		//objs[0].faces
+		//cout<<"filling objs\n";
+	}
+    for(unsigned int j=0; j<renderScene->materials.size(); j++){
+      materials[j] = renderScene->materials[j];
     }
-    
-  
-    // execute the kernel
-    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials, renderScene->materials.size(), geoms, renderScene->objects.size() );
+
+	/////////////////////////////////////
+	////////// Mesh Loading /////////////
+	/////////////////////////////////////
+	int number_of_faces;
+	triangle* tri_faces;
+	if (renderScene->meshes.size() >0)
+	{
+		vbo = renderScene->meshes[0].getVBO();
+		vbosize = renderScene->meshes[0].getVBOsize();
+
+		nbo = renderScene->meshes[0].getNBO();
+		nbosize= renderScene->meshes[0].getNBOsize();	
+
+		float newcbo[] = {0.0, 1.0, 0.0, 
+						0.0, 0.0, 1.0, 
+						1.0, 0.0, 0.0};
+		cbo = newcbo;
+		cbosize = 9;
+
+		ibo = renderScene->meshes[0].getIBO();
+		ibosize = renderScene->meshes[0].getIBOsize();
+
+		vector<vector<int>>* temp_faces= renderScene->meshes[0].getFaces();
+		//hack
+		number_of_faces=ibosize/3;
+		tri_faces= new triangle[number_of_faces];
+
+		/*for(int i=0;i<108;i++)
+		{
+			cout<<vbo[i]<<"   \n";
+			if((i+1)%3==0)
+			{
+				cout<<"\n";
+			}
+		}*/
+
+		for( int i=0 ; i <number_of_faces ; i++)
+		{
+			// here P0 has the vertex index of 1 vertex of triangle
+			tri_faces[i].p0=glm::vec3(vbo[i*9],vbo[i*9 +1 ],vbo[i*9 +2]);
+			tri_faces[i].p1=glm::vec3(vbo[i*9 +3],vbo[i*9 +4],vbo[i*9 +5]);
+			tri_faces[i].p2=glm::vec3(vbo[i*9 + 6],vbo[i*9 + 7],vbo[i*9 + 8]);
+
+
+			tri_faces[i].n0=glm::vec3(nbo[i*9],    nbo[i*9 +1 ],nbo[i*9 +2]);
+			tri_faces[i].n1=glm::vec3(nbo[i*9 +3], nbo[i*9 +4], nbo[i*9 +5]);
+			tri_faces[i].n2=glm::vec3(nbo[i*9 + 6],nbo[i*9 + 7],nbo[i*9 + 8]);
+
+
+			////// NOTE This line is hacky, just to save the normal
+
+			tri_faces[i].n0=glm::normalize(tri_faces[i].n0+tri_faces[i].n1+tri_faces[i].n2);
+
+
+			//tri_faces[i].p0 = glm::vec3(vbo[3*temp_faces[0][i][0]],vbo[3*temp_faces[0][i][0] + 1],vbo[3*(temp_faces[0][i][0]) + 2]);
+			//tri_faces[i].p1 = glm::vec3(vbo[3*temp_faces[0][i][1]],vbo[3*temp_faces[0][i][1] + 1],vbo[3*(temp_faces[0][i][1]) + 2]);
+			//tri_faces[i].p2 = glm::vec3(vbo[3*temp_faces[0][i][2]],vbo[3*temp_faces[0][i][2] + 1],vbo[3*(temp_faces[0][i][2]) + 2]);
+			//cout<"ok";
+			//tri_faces[i].p0= vbo[i*tri_faces[i].p0.x, i*tri_faces[i].p0.y,i*tri_faces[i].p0.z];
+		}
+	
+		//vbo[temp_faces[0][0][0]
+		/*for( int i=0 ; i <number_of_faces ; i++)
+		{
+		cout<<tri_faces[i].p0.x<<"	\n";
+		cout<<tri_faces[i].p1.x<<"	\n";
+		cout<<tri_faces[i].p2.x<<"	\n";
+		}*/
+	}
+
+	//cout<<renderCam->fov.x<<"fov"<<endl;
+	
+	// you dont have to do this everytime. think about it
+	
+	float xDirection = sin(renderCam->yaw) * cos(renderCam->pitch);
+	float yDirection = sin(renderCam->pitch);
+	float zDirection = cos(renderCam->yaw) * cos(renderCam->pitch);
+	glm::vec3 directionToCamera = glm::vec3(xDirection, yDirection, zDirection);
+	glm::vec3 viewDirection = -directionToCamera;
+	glm::vec3 eyePosition = renderCam->centerPosition + directionToCamera * renderCam->radius;
+	renderCam->positions[0]= glm::vec3(eyePosition.x,eyePosition.y,eyePosition.z);
+	
+	
+	// execute the kernel
+    cudaRaytraceCore(dptr, renderCam, targetFrame, iterations, materials,
+		renderScene->materials.size(), geoms, renderScene->objects.size(),
+		vbo,nbo,cbo,vbosize,nbosize,cbosize,objs, renderScene->meshes.size(), number_of_faces, tri_faces,
+		ibo,ibosize);
     
     // unmap buffer object
+	
     cudaGLUnmapBufferObject(pbo);
-  }else{
+  }
+else{
 
     if(!finishedRender){
       //output image file
@@ -168,11 +418,11 @@ void runCuda(){
       for(int i=0; i<renderCam->resolution.x*renderCam->resolution.y; i++){
         renderCam->image[i] = glm::vec3(0,0,0);
       }
-      cudaDeviceReset(); 
+      cudaDeviceReset();
+	  //deleteImage(image);
       finishedRender = false;
     }
   }
-  
 }
 
 #ifdef __APPLE__
@@ -226,8 +476,12 @@ void runCuda(){
 		   case(27):
 			   exit(1);
 			   break;
-		}
+		   case(' '):
+				   cout<<"hello";
+				   break;
 	}
+}
+	
 
 #endif
 
