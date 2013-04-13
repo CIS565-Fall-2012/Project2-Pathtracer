@@ -17,6 +17,8 @@
 #include <vector>
 #include "glm/glm.hpp"
 
+
+
 void checkCUDAError(const char *msg) {
   cudaError_t err = cudaGetLastError();
   if( cudaSuccess != err) {
@@ -43,9 +45,9 @@ __host__ __device__ ray raycastFromCameraKernel(glm::vec2 resolution, float time
    
   thrust::default_random_engine rng(hash(index*time));
   thrust::uniform_real_distribution<float> u01(0,1);
-  
+ 
   //standard camera raycast stuff
-  glm::vec3 E = eye;
+  glm::vec3 E1 = eye;
   glm::vec3 C = view;
   glm::vec3 U = up;
   float fovx = fov.x;
@@ -55,7 +57,7 @@ __host__ __device__ ray raycastFromCameraKernel(glm::vec2 resolution, float time
   
   glm::vec3 A = glm::cross(C, U);
   glm::vec3 B = glm::cross(A, C);
-  glm::vec3 M = E+C;
+  glm::vec3 M = E1+C;
   glm::vec3 H = (A*float(CD*tan(fovx*(PI/180))))/float(glm::length(A));
   glm::vec3 V = (B*float(CD*tan(-fovy*(PI/180))))/float(glm::length(B));
   
@@ -63,8 +65,8 @@ __host__ __device__ ray raycastFromCameraKernel(glm::vec2 resolution, float time
   float sy = (y)/(resolution.y-1);
   
   glm::vec3 P = M + (((2*sx)-1)*H) + (((2*sy)-1)*V);
-  glm::vec3 PmE = P-E;
-  glm::vec3 R = E + (float(200)*(PmE))/float(glm::length(PmE));
+  glm::vec3 PmE = P-E1;
+  glm::vec3 R = E1 + (float(200)*(PmE))/float(glm::length(PmE));
   
   glm::vec3 direction = glm::normalize(R);
   //major performance cliff at this point, TODO: find out why!
@@ -127,31 +129,59 @@ __global__ void raytraceRay(glm::vec2 resolution, float time, cameraData cam, in
   int y = (blockIdx.y * blockDim.y) + threadIdx.y;
   int index = x + (y * resolution.x);
 
+
+  glm::vec3 ligh_pos=glm::vec3(0,7,0);
+  glm::vec3 light_color=glm::vec3(0,0,0);
+
+  glm::vec3 POI;
+
   ray r = raycastFromCameraKernel(resolution, time, x, y, cam.position, cam.view, cam.up, cam.fov);
 
   if((x<=resolution.x && y<=resolution.y)){
 
-    float MAX_DEPTH = 100000000000000000;
-    float depth = MAX_DEPTH;
+   // float MAX_DEPTH = 100000000000000000;
+  //  float depth = MAX_DEPTH;
+	  float t,tmin=-1;
 
-    for(int i=0; i<numberOfGeoms; i++){
+    for(int i=0; i<numberOfGeoms; i++)
+	{
         glm::vec3 intersectionPoint;
         glm::vec3 intersectionNormal;
-       if(geoms[i].type==SPHERE){
-           depth = sphereIntersectionTest(geoms[i], r, intersectionPoint, intersectionNormal);
-        }else if(geoms[i].type==CUBE){
-            depth = boxIntersectionTest(geoms[i], r, intersectionPoint, intersectionNormal);
-        }else if(geoms[i].type==MESH){
+
+
+        if(geoms[i].type==SPHERE)
+		{
+           t= sphereIntersectionTest(geoms[i], r, intersectionPoint, intersectionNormal);
+		   if (t>0 && t <tmin)
+		   {
+				POI=intersectionPoint;
+		   }
+        }
+		else if(geoms[i].type==CUBE)
+		{
+            t = boxIntersectionTest(geoms[i], r, intersectionPoint, intersectionNormal);
+			 if (t>0 && t <tmin)
+		   {
+				POI=intersectionPoint;
+		   }
+        }
+		else if(geoms[i].type==MESH)
+		{
             //triangle tests go here
-        }else{
+        }
+		else
+		{
             //lol?
         }
-        if(depth<MAX_DEPTH && depth>-EPSILON){
-          MAX_DEPTH = depth;
-          colors[index] = materials[geoms[i].materialid].color;
+
+		if (tmin<0)
+    //    if(depth<MAX_DEPTH && depth>-EPSILON)
+		{
+          //MAX_DEPTH = depth;
+			colors[index]=glm::vec3(0,0,0);
+          //colors[index] = materials[geoms[i].materialid].color;
         }
     }
-
 
 
     //colors[index] = generateRandomNumberFromThread(resolution, time, x, y);
